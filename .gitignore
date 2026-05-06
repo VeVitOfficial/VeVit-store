@@ -1,0 +1,12 @@
+# Secrets
+config_secret.php
+
+# IDE
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
