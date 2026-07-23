@@ -22,15 +22,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'stock' => $_POST['stock'] !== '' ? intval($_POST['stock']) : null,
             'is_active' => isset($_POST['is_active']) ? 1 : 0,
             'featured' => isset($_POST['featured']) ? 1 : 0,
+            'brand' => trim($_POST['brand'] ?? '') !== '' ? trim($_POST['brand']) : null,
         ];
         if (!$data['slug']) $data['slug'] = strtolower(preg_replace('/[^a-z0-9]+/', '-', $data['name']));
 
         if ($id) {
-            $stmt = $pdo->prepare("UPDATE store_products SET name=?, slug=?, category_id=?, description=?, short_desc=?, price=?, sale_price=?, type=?, stock=?, is_active=?, featured=? WHERE id=?");
-            $stmt->execute([$data['name'], $data['slug'], $data['category_id'], $data['description'], $data['short_desc'], $data['price'], $data['sale_price'], $data['type'], $data['stock'], $data['is_active'], $data['featured'], $id]);
+            $stmt = $pdo->prepare("UPDATE store_products SET name=?, slug=?, category_id=?, description=?, short_desc=?, price=?, sale_price=?, type=?, stock=?, is_active=?, featured=?, brand=? WHERE id=?");
+            $stmt->execute([$data['name'], $data['slug'], $data['category_id'], $data['description'], $data['short_desc'], $data['price'], $data['sale_price'], $data['type'], $data['stock'], $data['is_active'], $data['featured'], $data['brand'], $id]);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO store_products (name, slug, category_id, description, short_desc, price, sale_price, type, stock, is_active, featured, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW())");
-            $stmt->execute([$data['name'], $data['slug'], $data['category_id'], $data['description'], $data['short_desc'], $data['price'], $data['sale_price'], $data['type'], $data['stock'], $data['is_active'], $data['featured']]);
+            $stmt = $pdo->prepare("INSERT INTO store_products (name, slug, category_id, description, short_desc, price, sale_price, type, stock, is_active, featured, brand, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NOW())");
+            $stmt->execute([$data['name'], $data['slug'], $data['category_id'], $data['description'], $data['short_desc'], $data['price'], $data['sale_price'], $data['type'], $data['stock'], $data['is_active'], $data['featured'], $data['brand']]);
         }
         header('Location: products.php?msg=saved');
         exit;
@@ -79,7 +80,7 @@ if ($action === 'edit' && isset($_GET['id'])) {
     <a href="orders.php" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">
       <span class="material-symbols-outlined text-[18px]">shopping_bag</span> Objednávky
     </a>
-    <a href="../index.php" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">
+    <a href="../index.html" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">
       <span class="material-symbols-outlined text-[18px]">arrow_back</span> Zpět do obchodu
     </a>
   </nav>
@@ -167,7 +168,7 @@ if ($action === 'edit' && isset($_GET['id'])) {
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
           <div>
             <label class="block font-mono-label text-mono-label text-on-surface-variant mb-xs">Kategorie</label>
             <select name="category_id" class="w-full bg-surface border border-outline-variant text-on-surface font-body-md px-sm py-sm rounded-DEFAULT focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
@@ -183,6 +184,10 @@ if ($action === 'edit' && isset($_GET['id'])) {
               <option value="physical" <?= ($edit['type'] ?? '') === 'physical' ? 'selected' : '' ?>Fyzický</option>
               <option value="digital" <?= ($edit['type'] ?? '') === 'digital' ? 'selected' : '' ?>Digitální</option>
             </select>
+          </div>
+          <div>
+            <label class="block font-mono-label text-mono-label text-on-surface-variant mb-xs">Značka</label>
+            <input type="text" name="brand" value="<?= h($edit['brand'] ?? '') ?>" placeholder="např. VeVit" class="w-full bg-surface border border-outline-variant text-on-surface font-body-md px-sm py-sm rounded-DEFAULT focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/50">
           </div>
         </div>
 

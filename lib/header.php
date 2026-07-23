@@ -18,9 +18,9 @@ $currentUser = function_exists('getCurrentUser') ? getCurrentUser() : null;
 
 <!-- TopNavBar (Web) -->
 <nav class="hidden md:flex sticky top-0 z-50 justify-between items-center w-full px-margin py-base bg-background/80 backdrop-blur-md border-b border-outline-variant">
-  <a href="index.php" class="font-display text-h1 font-extrabold text-primary tracking-tighter">VeVit Store</a>
+  <a href="index.html" class="font-display text-h1 font-extrabold text-primary tracking-tighter">VeVit Store</a>
   <div class="flex gap-lg items-center">
-    <a href="index.php" class="<?= $activeNav === 'home' ? 'text-primary font-bold border-b-2 border-primary pb-1' : 'text-on-surface-variant font-body-md hover:text-on-surface' ?> transition-colors px-2 py-1">Domů</a>
+    <a href="index.html" class="<?= $activeNav === 'home' ? 'text-primary font-bold border-b-2 border-primary pb-1' : 'text-on-surface-variant font-body-md hover:text-on-surface' ?> transition-colors px-2 py-1">Domů</a>
     <a href="catalog.php" class="<?= $activeNav === 'catalog' ? 'text-primary font-bold border-b-2 border-primary pb-1' : 'text-on-surface-variant font-body-md hover:text-on-surface' ?> transition-colors px-2 py-1">Katalog</a>
     <a href="catalog.php?sort=newest" class="<?= $activeNav === 'new' ? 'text-primary font-bold border-b-2 border-primary pb-1' : 'text-on-surface-variant font-body-md hover:text-on-surface' ?> transition-colors px-2 py-1">Novinky</a>
     <a href="catalog.php?deals=1" class="<?= $activeNav === 'deals' ? 'text-primary font-bold border-b-2 border-primary pb-1' : 'text-on-surface-variant font-body-md hover:text-on-surface' ?> transition-colors px-2 py-1">Slevy</a>
@@ -56,7 +56,7 @@ $currentUser = function_exists('getCurrentUser') ? getCurrentUser() : null;
 
 <!-- Mobile TopBar -->
 <nav class="md:hidden sticky top-0 z-50 flex justify-between items-center w-full px-margin py-base bg-background/90 backdrop-blur-md border-b border-outline-variant">
-  <a href="index.php" class="font-display text-h2 font-extrabold text-primary tracking-tighter">VeVit Store</a>
+  <a href="index.html" class="font-display text-h2 font-extrabold text-primary tracking-tighter">VeVit Store</a>
   <div class="flex items-center gap-sm">
     <?php if ($currentUser): ?>
       <?php if ($currentUser['avatar_url']): ?>

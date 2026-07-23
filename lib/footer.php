@@ -16,7 +16,7 @@ $activeNav = $activeNav ?? '';
 
 <!-- BottomNavBar (Mobile) -->
 <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface-container border-t border-outline-variant rounded-t-xl shadow-lg">
-  <a href="index.php" aria-label="Domů" class="<?= $activeNav === 'home' ? 'bg-primary-container text-on-primary-container rounded-full px-4 py-1 border border-on-primary-container shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'text-on-surface-variant hover:text-primary p-2' ?> flex flex-col items-center justify-center transition-colors">
+  <a href="index.html" aria-label="Domů" class="<?= $activeNav === 'home' ? 'bg-primary-container text-on-primary-container rounded-full px-4 py-1 border border-on-primary-container shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'text-on-surface-variant hover:text-primary p-2' ?> flex flex-col items-center justify-center transition-colors">
     <span class="material-symbols-outlined text-[24px]">home</span>
     <span class="font-mono-label text-caption mt-xs">Domů</span>
   </a>

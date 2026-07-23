@@ -2,7 +2,7 @@
 require_once __DIR__ . '/config.php';
 
 $slug = $_GET['slug'] ?? '';
-if (!$slug) { header('Location: index.php'); exit; }
+if (!$slug) { header('Location: index.html'); exit; }
 
 $stmt = $pdo->prepare("SELECT p.*, p.featured::int AS featured, p.is_active::int AS is_active, c.name AS category_name, c.slug AS category_slug FROM store_products p LEFT JOIN store_categories c ON p.category_id = c.id WHERE p.slug = ? AND p.is_active = TRUE");
 $stmt->execute([$slug]);
@@ -15,6 +15,15 @@ if (!$product) { http_response_code(404); $pageTitle='Nenalezeno'; include __DIR
   <a href="catalog.php" class="bg-primary-container text-on-primary-fixed font-mono-label text-mono-label py-sm px-md rounded-DEFAULT border-2 border-on-primary-fixed neo-shadow uppercase">Zpět do katalogu</a>
 </main>
 <?php include __DIR__.'/lib/footer.php'; exit; }
+
+// Sledování zobrazení — jen pro přihlášeného (naposledy prohlížené na homepage).
+$viewer = getCurrentUser();
+if ($viewer) {
+    $pdo->prepare("INSERT INTO store_product_views (product_id, user_id, viewed_at)
+                   VALUES (?,?,NOW())
+                   ON CONFLICT (user_id, product_id) DO UPDATE SET viewed_at = NOW()")
+        ->execute([$product['id'], $viewer['id']]);
+}
 
 $isDigital = $product['type'] === 'digital';
 $outOfStock = vv_product_is_out_of_stock($product);
@@ -35,7 +44,7 @@ include __DIR__ . '/lib/header.php';
 
   <!-- Breadcrumbs -->
   <div class="flex flex-wrap items-center gap-2 mb-lg font-mono-label text-caption text-on-surface-variant uppercase">
-    <a class="hover:text-primary transition-colors" href="index.php">Domů</a>
+    <a class="hover:text-primary transition-colors" href="index.html">Domů</a>
     <span class="material-symbols-outlined text-[14px]">chevron_right</span>
     <a class="hover:text-primary transition-colors" href="catalog.php">Katalog</a>
     <?php if ($product['category_slug']): ?>

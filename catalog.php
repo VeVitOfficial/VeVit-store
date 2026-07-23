@@ -8,6 +8,7 @@ $categoryFilter = trim((string)($_GET['category'] ?? ''));
 $typeFilter = $_GET['type'] ?? '';
 $sort = $_GET['sort'] ?? 'featured';
 $dealsOnly = !empty($_GET['deals']);
+$brandFilter = trim((string)($_GET['brand'] ?? ''));
 $maxPrice = isset($_GET['max_price']) ? (int)$_GET['max_price'] : 0;
 
 $where = ['p.is_active = TRUE'];
@@ -20,6 +21,10 @@ if ($categoryFilter) {
 if ($typeFilter && in_array($typeFilter, ['physical','digital'])) {
     $where[] = 'p.type = ?';
     $params[] = $typeFilter;
+}
+if ($brandFilter) {
+    $where[] = 'p.brand = ?';
+    $params[] = $brandFilter;
 }
 if ($search) {
     $where[] = '(p.name ILIKE ? OR p.short_desc ILIKE ?)';
@@ -38,6 +43,7 @@ $order = match($sort) {
     'newest' => 'p.created_at DESC',
     'cheapest' => 'COALESCE(p.sale_price, p.price) ASC',
     'expensive' => 'COALESCE(p.sale_price, p.price) DESC',
+    'bestselling' => '(SELECT COALESCE(SUM(oi.quantity), 0) FROM store_order_items oi JOIN store_orders o ON oi.order_id = o.id WHERE oi.product_id = p.id AND o.status IN (\'paid\',\'shipped\',\'delivered\')) DESC, p.created_at DESC',
     default => 'p.featured DESC, p.created_at DESC'
 };
 

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html class="dark" lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeVit Store — Digital First Lifestyle</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "surface": "#131313",
+        "surface-dim": "#131313",
+        "surface-bright": "#3a3939",
+        "surface-container-lowest": "#0e0e0e",
+        "surface-container-low": "#1c1b1b",
+        "surface-container": "#201f1f",
+        "surface-container-high": "#2a2a2a",
+        "surface-container-highest": "#353534",
+        "surface-variant": "#353534",
+        "on-surface": "#e5e2e1",
+        "on-surface-variant": "#bbcabf",
+        "outline": "#86948a",
+        "outline-variant": "#3c4a42",
+        "primary": "#4edea3",
+        "on-primary": "#003824",
+        "primary-container": "#10b981",
+        "on-primary-container": "#00422b",
+        "primary-fixed": "#6ffbbe",
+        "primary-fixed-dim": "#4edea3",
+        "on-primary-fixed": "#002113",
+        "on-primary-fixed-variant": "#005236",
+        "secondary": "#bdc7d9",
+        "on-secondary": "#27313f",
+        "secondary-container": "#404a59",
+        "on-secondary-container": "#afb9cb",
+        "tertiary": "#c6c6c7",
+        "on-tertiary": "#2f3131",
+        "tertiary-container": "#a2a3a3",
+        "error": "#ffb4ab",
+        "on-error": "#690005",
+        "error-container": "#93000a",
+        "background": "#131313",
+        "on-background": "#e5e2e1"
+      },
+      borderRadius: {
+        DEFAULT: "0.125rem",
+        lg: "0.25rem",
+        xl: "0.5rem",
+        full: "0.75rem"
+      },
+      spacing: {
+        xs: "4px",
+        sm: "12px",
+        base: "8px",
+        md: "24px",
+        lg: "48px",
+        xl: "80px",
+        margin: "32px",
+        gutter: "24px"
+      },
+      fontFamily: {
+        "display": ["Plus Jakarta Sans"],
+        "h1": ["Plus Jakarta Sans"],
+        "h2": ["Plus Jakarta Sans"],
+        "body-lg": ["Plus Jakarta Sans"],
+        "body-md": ["Plus Jakarta Sans"],
+        "caption": ["Plus Jakarta Sans"],
+        "mono-label": ["Space Grotesk"]
+      },
+      fontSize: {
+        "display": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "800" }],
+        "h1": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+        "h2": ["24px", { lineHeight: "1.3", fontWeight: "700" }],
+        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+        "mono-label": ["14px", { lineHeight: "1.0", letterSpacing: "0.05em", fontWeight: "500" }],
+        "caption": ["12px", { lineHeight: "1.4", fontWeight: "500" }]
+      }
+    }
+  }
+};
+</script>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md antialiased min-h-screen flex flex-col pb-24 md:pb-0">
+
+<!-- TopNavBar (Web) -->
+<nav class="hidden md:flex sticky top-0 z-50 justify-between items-center w-full px-margin py-base bg-background/80 backdrop-blur-md border-b border-outline-variant">
+  <a href="index.html" class="font-display text-h1 font-extrabold text-primary tracking-tighter">VeVit Store</a>
+  <div class="flex gap-lg items-center">
+    <a href="index.html" class="text-primary font-bold border-b-2 border-primary pb-1 transition-colors px-2 py-1">Domů</a>
+    <a href="catalog.php" class="text-on-surface-variant font-body-md hover:text-on-surface transition-colors px-2 py-1">Katalog</a>
+    <a href="catalog.php?sort=newest" class="text-on-surface-variant font-body-md hover:text-on-surface transition-colors px-2 py-1">Novinky</a>
+    <a href="catalog.php?deals=1" class="text-on-surface-variant font-body-md hover:text-on-surface transition-colors px-2 py-1">Slevy</a>
+  </div>
+  <div class="flex gap-md items-center">
+    <form method="get" action="catalog.php" class="relative flex items-center group">
+      <span class="material-symbols-outlined absolute left-3 text-on-surface-variant pointer-events-none group-focus-within:text-primary transition-colors">search</span>
+      <input name="search" type="text" placeholder="Hledat produkty..." class="bg-surface-container border border-outline-variant rounded-full pl-10 pr-4 py-1.5 text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-48 lg:w-64 transition-all duration-200 placeholder:text-on-surface-variant/50">
+    </form>
+    <a href="cart.php" aria-label="Košík" class="text-primary hover:bg-surface-container-high p-2 rounded transition-all duration-200 relative">
+      <span class="material-symbols-outlined text-[24px]">shopping_cart</span>
+      <span class="nav-cart-badge absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-primary text-on-primary text-[10px] font-bold rounded-full flex items-center justify-center" style="display:none">0</span>
+    </a>
+    <div id="navAuth" class="flex items-center">
+      <button type="button" onclick="openLoginModal()" aria-label="Přihlášení" class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high p-2 rounded transition-all duration-200">
+        <span class="material-symbols-outlined text-[24px]">account_circle</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile TopBar -->
+<nav class="md:hidden sticky top-0 z-50 flex justify-between items-center w-full px-margin py-base bg-background/90 backdrop-blur-md border-b border-outline-variant">
+  <a href="index.html" class="font-display text-h2 font-extrabold text-primary tracking-tighter">VeVit Store</a>
+  <div class="flex items-center gap-sm">
+    <div id="navAuthMobile" class="flex items-center">
+      <button type="button" onclick="openLoginModal()" aria-label="Přihlášení" class="text-on-surface-variant hover:text-on-surface p-2 rounded transition-colors">
+        <span class="material-symbols-outlined text-[24px]">account_circle</span>
+      </button>
+    </div>
+    <a href="cart.php" aria-label="Košík" class="text-primary hover:bg-surface-container-high p-2 rounded relative">
+      <span class="material-symbols-outlined text-[24px]">shopping_cart</span>
+      <span class="nav-cart-badge absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-primary text-on-primary text-[10px] font-bold rounded-full flex items-center justify-center" style="display:none">0</span>
+    </a>
+  </div>
+</nav>
+
+<!-- Login Modal -->
+<div id="loginModal" class="fixed inset-0 z-[100] hidden" aria-modal="true" role="dialog">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeLoginModal()"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="relative bg-surface-container border border-outline-variant rounded-xl p-lg w-full max-w-sm shadow-2xl" onclick="event.stopPropagation()">
+      <button type="button" onclick="closeLoginModal()" class="absolute top-3 right-3 text-on-surface-variant hover:text-error transition-colors" aria-label="Zavřít">
+        <span class="material-symbols-outlined text-[24px]">close</span>
+      </button>
+
+      <div class="text-center mb-lg">
+        <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-sm">
+          <span class="material-symbols-outlined text-[24px] text-on-primary">login</span>
+        </div>
+        <h2 class="font-h2 text-h2 text-on-surface">Přihlášení</h2>
+        <p class="font-caption text-caption text-on-surface-variant mt-xs">Přihlaste se svým VeVit účtem</p>
+      </div>
+
+      <div id="loginError" class="hidden bg-error/10 text-error font-body-md text-body-md px-md py-sm rounded-lg mb-md"></div>
+
+      <form id="loginForm" class="flex flex-col gap-md" onsubmit="return submitLogin(event)">
+        <div>
+          <label class="block font-mono-label text-mono-label text-on-surface-variant mb-xs">E-mail</label>
+          <input type="email" name="email" placeholder="vas@email.cz" required autofocus
+            class="w-full bg-surface border border-outline-variant text-on-surface font-body-md px-md py-sm rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/50">
+        </div>
+        <div>
+          <label class="block font-mono-label text-mono-label text-on-surface-variant mb-xs">Heslo</label>
+          <input type="password" name="password" placeholder="••••••••" required
+            class="w-full bg-surface border border-outline-variant text-on-surface font-body-md px-md py-sm rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/50">
+        </div>
+        <button type="submit"
+          class="w-full bg-primary-container text-on-primary-container font-mono-label text-mono-label py-sm px-md rounded-lg border border-on-primary-container uppercase tracking-wider transition-all duration-200 shadow-[4px_4px_0px_0px_#10b981] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#10b981] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none">
+          Přihlásit se
+        </button>
+      </form>
+
+      <div class="mt-lg pt-lg border-t border-outline-variant text-center">
+        <p class="font-caption text-caption text-on-surface-variant">
+          Nemáte účet? <a href="https://vevit.cz/register" target="_blank" class="text-primary hover:underline">Registrujte se na VeVit</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<main class="flex-1 max-w-[1200px] mx-auto px-margin w-full">
+
+  <!-- Dvousloupcý: vlevo specifické kategorie (i vedle banneru), vpravo banner + obecné kategorie + značky -->
+  <section class="py-base grid md:grid-cols-[18rem_1fr] gap-gutter">
+
+    <!-- Levý sidebar — specifické (podřazené) kategorie -->
+    <aside id="subcatsSection" class="hidden md:block">
+      <div class="bg-surface-container border border-outline-variant rounded-xl p-md sticky top-md">
+        <h2 class="font-mono-label text-mono-label text-on-surface-variant uppercase tracking-wider mb-sm">Kategorie</h2>
+        <div id="subcatsList" class="flex flex-col gap-xs"></div>
+      </div>
+    </aside>
+
+    <!-- Pravý sloupec: banner + obecné kategorie + značky -->
+    <div class="space-y-xl min-w-0">
+      <!-- Hlavní banner — karusel novinek/oznámení (statický) -->
+      <div id="bannerTrack" class="relative rounded-xl overflow-hidden border border-outline-variant hard-shadow-hover h-[220px] md:h-[300px]">
+      <!-- Slide 1 — Novinky -->
+      <div class="banner-slide absolute inset-0 flex items-center justify-between px-md md:px-xl" data-slide="0"
+           style="background:linear-gradient(120deg,#10b981 0%,#4edea3 55%,#6ffbbe 100%)">
+        <div class="max-w-[60%] space-y-sm">
+          <span class="font-mono-label text-mono-label text-on-primary-fixed bg-background/20 px-3 py-1 rounded-full uppercase tracking-widest inline-block">Novinka</span>
+          <h2 class="font-display text-h1 md:text-display text-on-primary-fixed leading-tight">Nová kolekce merch</h2>
+          <p class="font-body-md md:text-body-lg text-on-primary-fixed/90 hidden sm:block">Prémiové trička, mikiny a hrnky s fialovým logem VeVit.</p>
+          <a href="catalog.php?sort=newest" class="inline-flex items-center gap-xs bg-background text-on-surface font-mono-label text-mono-label px-lg py-sm rounded hard-shadow-primary hard-shadow-primary-active">Prohlédnout <span class="material-symbols-outlined text-[18px]">arrow_forward</span></a>
+        </div>
+        <span class="material-symbols-outlined text-[120px] md:text-[180px] text-on-primary-fixed/30 hidden sm:block">shirt</span>
+      </div>
+      <!-- Slide 2 — Slevy -->
+      <div class="banner-slide absolute inset-0 flex items-center justify-between px-md md:px-xl opacity-0" data-slide="1"
+           style="background:linear-gradient(120deg,#7c3aed 0%,#a855f7 55%,#c084fc 100%)">
+        <div class="max-w-[60%] space-y-sm">
+          <span class="font-mono-label text-mono-label text-white bg-background/20 px-3 py-1 rounded-full uppercase tracking-widest inline-block">Akce</span>
+          <h2 class="font-display text-h1 md:text-display text-white leading-tight">Slevy až 30 %</h2>
+          <p class="font-body-md md:text-body-lg text-white/90 hidden sm:block">Vybrané digitální nástroje a merch nyní slevněné.</p>
+          <a href="catalog.php?deals=1" class="inline-flex items-center gap-xs bg-background text-on-surface font-mono-label text-mono-label px-lg py-sm rounded hard-shadow-primary hard-shadow-primary-active">Zobrazit slevy <span class="material-symbols-outlined text-[18px]">arrow_forward</span></a>
+        </div>
+        <span class="material-symbols-outlined text-[120px] md:text-[180px] text-white/30 hidden sm:block">sell</span>
+      </div>
+      <!-- Slide 3 — Digitální -->
+      <div class="banner-slide absolute inset-0 flex items-center justify-between px-md md:px-xl opacity-0" data-slide="2"
+           style="background:linear-gradient(120deg,#3b82f6 0%,#06b6d4 55%,#22d3ee 100%)">
+        <div class="max-w-[60%] space-y-sm">
+          <span class="font-mono-label text-mono-label text-white bg-background/20 px-3 py-1 rounded-full uppercase tracking-widest inline-block">Digitální</span>
+          <h2 class="font-display text-h1 md:text-display text-white leading-tight">Nástroje pro tvůrce</h2>
+          <p class="font-body-md md:text-body-lg text-white/90 hidden sm:block">UI kity a ikony pro Figma — okamžité stažení po platbě.</p>
+          <a href="catalog.php?category=umeni-papirenstvi-a-tvorivost" class="inline-flex items-center gap-xs bg-background text-on-surface font-mono-label text-mono-label px-lg py-sm rounded hard-shadow-primary hard-shadow-primary-active">Stáhnout <span class="material-symbols-outlined text-[18px]">arrow_forward</span></a>
+        </div>
+        <span class="material-symbols-outlined text-[120px] md:text-[180px] text-white/30 hidden sm:block">download</span>
+      </div>
+      <!-- Tečky -->
+      <div id="bannerDots" class="absolute bottom-sm left-1/2 -translate-x-1/2 flex gap-xs">
+        <button class="banner-dot w-2 h-2 rounded-full bg-white/60 transition-all" data-go="0" aria-label="Slide 1"></button>
+        <button class="banner-dot w-2 h-2 rounded-full bg-white/60 transition-all" data-go="1" aria-label="Slide 2"></button>
+        <button class="banner-dot w-2 h-2 rounded-full bg-white/60 transition-all" data-go="2" aria-label="Slide 3"></button>
+      </div>
+    </div>
+
+      <!-- Obecné kategorie (rodiče) — dlaždice -->
+      <div id="categoriesSection" class="hidden">
+        <div class="flex justify-between items-end mb-md">
+          <h2 class="font-display text-h1 text-on-surface">Kategorie</h2>
+          <a href="catalog.php" class="font-mono-label text-mono-label text-primary flex items-center gap-1 hover:translate-x-1 transition-transform">Vše <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+        </div>
+        <div id="categoriesGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-gutter"></div>
+      </div>
+
+      <!-- Značky — dlaždice -->
+      <div id="brandsSection" class="hidden">
+        <div class="flex justify-between items-end mb-md">
+          <h2 class="font-display text-h1 text-on-surface">Značky</h2>
+          <a href="catalog.php" class="font-mono-label text-mono-label text-primary flex items-center gap-1 hover:translate-x-1 transition-transform">Vše <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+        </div>
+        <div id="brandsGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-gutter"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Řada 1 — V akci -->
+  <section id="dealsSection" class="py-base hidden">
+    <div class="flex justify-between items-end mb-md">
+      <h2 class="font-display text-h1 text-on-surface flex items-center gap-sm"><span class="material-symbols-outlined text-primary">sell</span> V akci</h2>
+      <a href="catalog.php?deals=1" class="font-mono-label text-mono-label text-primary flex items-center gap-1 hover:translate-x-1 transition-transform">Vše <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+    </div>
+    <div id="dealsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-gutter"></div>
+  </section>
+
+  <!-- Řada 2 — Produkty VeVit -->
+  <section id="vevitSection" class="py-base hidden">
+    <div class="flex justify-between items-end mb-md">
+      <h2 class="font-display text-h1 text-on-surface flex items-center gap-sm"><span class="material-symbols-outlined text-primary">verified</span> Produkty VeVit</h2>
+      <a href="catalog.php?brand=VeVit" class="font-mono-label text-mono-label text-primary flex items-center gap-1 hover:translate-x-1 transition-transform">Vše <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+    </div>
+    <div id="vevitGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-gutter"></div>
+  </section>
+
+  <!-- Řada 3 — Často nakupované -->
+  <section id="bestSection" class="py-base hidden">
+    <div class="flex justify-between items-end mb-md">
+      <h2 class="font-display text-h1 text-on-surface flex items-center gap-sm"><span class="material-symbols-outlined text-primary">trending_up</span> Často nakupované</h2>
+      <a href="catalog.php?sort=bestselling" class="font-mono-label text-mono-label text-primary flex items-center gap-1 hover:translate-x-1 transition-transform">Vše <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+    </div>
+    <div id="bestGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-gutter"></div>
+  </section>
+
+  <!-- Řada 4 — Naposledy prohlížené (jen přihlášený) -->
+  <section id="recentSection" class="py-base hidden">
+    <div class="flex justify-between items-end mb-md">
+      <h2 class="font-display text-h1 text-on-surface flex items-center gap-sm"><span class="material-symbols-outlined text-primary">history</span> Naposledy prohlížené</h2>
+    </div>
+    <div id="recentGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-gutter"></div>
+  </section>
+
+  <!-- Value Props -->
+  <section class="py-xl grid grid-cols-1 md:grid-cols-3 gap-gutter">
+    <div class="bg-surface-container border border-outline-variant rounded-xl p-md">
+      <div class="w-12 h-12 rounded bg-primary/15 flex items-center justify-center mb-sm">
+        <span class="material-symbols-outlined text-primary">local_shipping</span>
+      </div>
+      <h3 class="font-h2 text-h2 text-on-surface mb-xs">Doprava zdarma</h3>
+      <p class="font-body-md text-on-surface-variant">U objednávek nad 1 000 Kč. Doručení do 2 pracovních dnů po ČR.</p>
+    </div>
+    <div class="bg-surface-container border border-outline-variant rounded-xl p-md">
+      <div class="w-12 h-12 rounded bg-primary/15 flex items-center justify-center mb-sm">
+        <span class="material-symbols-outlined text-primary">bolt</span>
+      </div>
+      <h3 class="font-h2 text-h2 text-on-surface mb-xs">Okamžité stažení</h3>
+      <p class="font-body-md text-on-surface-variant">Digitální produkty po platbě hned ke stažení. Žádné čekání.</p>
+    </div>
+    <div class="bg-surface-container border border-outline-variant rounded-xl p-md">
+      <div class="w-12 h-12 rounded bg-primary/15 flex items-center justify-center mb-sm">
+        <span class="material-symbols-outlined text-primary">verified</span>
+      </div>
+      <h3 class="font-h2 text-h2 text-on-surface mb-xs">Bezpečná platba</h3>
+      <p class="font-body-md text-on-surface-variant">Stripe checkout, šifrovaná platba kartou nebo Apple Pay.</p>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant w-full py-xl px-margin flex flex-col md:flex-row justify-between items-center gap-gutter mt-auto">
+  <div class="font-display text-h2 font-black text-on-surface">VeVit Store</div>
+  <div class="flex flex-wrap gap-md justify-center">
+    <a class="text-on-surface-variant hover:text-primary transition-colors hover:translate-x-1 font-body-md" href="#">Ochrana soukromí</a>
+    <a class="text-on-surface-variant hover:text-primary transition-colors hover:translate-x-1 font-body-md" href="#">Obchodní podmínky</a>
+    <a class="text-on-surface-variant hover:text-primary transition-colors hover:translate-x-1 font-body-md" href="#">Doprava</a>
+    <a class="text-on-surface-variant hover:text-primary transition-colors hover:translate-x-1 font-body-md" href="#">Kontakt</a>
+  </div>
+  <div class="font-body-md text-on-surface-variant" id="footerYear">© VeVit Store</div>
+</footer>
+
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface-container border-t border-outline-variant rounded-t-xl shadow-lg">
+  <a href="index.html" aria-label="Domů" class="bg-primary-container text-on-primary-container rounded-full px-4 py-1 border border-on-primary-container shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center transition-colors">
+    <span class="material-symbols-outlined text-[24px]">home</span>
+    <span class="font-mono-label text-caption mt-xs">Domů</span>
+  </a>
+  <a href="catalog.php" aria-label="Katalog" class="text-on-surface-variant hover:text-primary p-2 flex flex-col items-center justify-center transition-colors">
+    <span class="material-symbols-outlined text-[24px]">storefront</span>
+    <span class="font-mono-label text-caption mt-xs">Katalog</span>
+  </a>
+  <a href="cart.php" aria-label="Košík" class="text-on-surface-variant hover:text-primary p-2 flex flex-col items-center justify-center transition-colors relative">
+    <span class="material-symbols-outlined text-[24px]">shopping_bag</span>
+    <span class="nav-cart-badge absolute top-0 right-3 min-w-4 h-4 px-1 bg-primary text-on-primary text-[10px] font-bold rounded-full flex items-center justify-center" style="display:none">0</span>
+    <span class="font-mono-label text-caption mt-xs">Košík</span>
+  </a>
+  <button type="button" onclick="openLoginModal()" aria-label="Přihlášení" class="text-on-surface-variant hover:text-primary p-2 flex flex-col items-center justify-center transition-colors">
+    <span class="material-symbols-outlined text-[24px]">person</span>
+    <span class="font-mono-label text-caption mt-xs">Účet</span>
+  </button>
+</nav>
+
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+/* ---------- Login modal (mirror of lib/header.php) ---------- */
+function openLoginModal() {
+  const m = document.getElementById('loginModal');
+  m.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  const emailInput = m.querySelector('input[type="email"]');
+  if (emailInput) setTimeout(() => emailInput.focus(), 50);
+}
+function closeLoginModal() {
+  const m = document.getElementById('loginModal');
+  m.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLoginModal(); });
+async function submitLogin(e) {
+  e.preventDefault();
+  const form = e.target;
+  const email = form.email.value.trim();
+  const password = form.password.value;
+  const errorEl = document.getElementById('loginError');
+  const btn = form.querySelector('button[type="submit"]');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="vevit-spinner"></span> Přihlašuji...';
+  try {
+    const res = await fetch('api/login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      window.location.reload();
+    } else {
+      errorEl.textContent = data.error || 'Chyba při přihlášení.';
+      errorEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  } catch {
+    errorEl.textContent = 'Chyba při komunikaci se serverem.';
+    errorEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+  return false;
+}
+if (new URLSearchParams(window.location.search).get('login') === '1') openLoginModal();
+
+/* ---------- Homepage data layer ---------- */
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function fmtPrice(v) {
+  return Number(v || 0).toLocaleString('cs-CZ', { maximumFractionDigits: 0 }).replace(/ /g, ' ') + ' Kč';
+}
+function catBg(slug) {
+  return ({
+    'elektronika-a-prislusenstvi': 'cat-bg-electronics',
+    'umeni-papirenstvi-a-tvorivost': 'cat-bg-digital',
+    'domov-kuchyne-a-bydleni': 'cat-bg-merch',
+    'sport-fitness-a-outdoor': 'cat-bg-default',
+    'moda-obleceni-a-doplnky': 'cat-bg-merch',
+    'krasa-zdravi-a-osobni-pece': 'cat-bg-default',
+    'chovatelske-potreby-pet-products': 'cat-bg-default',
+    'eko-and-udrzitelny-zivotni-styl': 'cat-bg-default'
+  })[slug] || 'cat-bg-default';
+}
+function hasSale(p) { return p.sale_price && Number(p.sale_price) > 0; }
+function priceOf(p) { return hasSale(p) ? Number(p.sale_price) : Number(p.price); }
+function outOfStock(p) { return p.type !== 'digital' && p.stock !== null && Number(p.stock) <= 0; }
+
+function renderProductCard(p) {
+  const digital = p.type === 'digital';
+  const soldout = outOfStock(p);
+  const sale = hasSale(p);
+  const price = priceOf(p);
+  const bg = catBg(p.category_slug);
+  const badge = p.featured
+    ? `<span class="font-mono-label text-mono-label text-primary border border-primary px-2 py-1 rounded bg-background/70 backdrop-blur-sm uppercase">Nové</span>`
+    : (sale ? `<span class="font-mono-label text-mono-label text-error border border-error px-2 py-1 rounded bg-background/70 backdrop-blur-sm uppercase">Sleva</span>` : '');
+  const stock = (!digital && p.stock !== null)
+    ? `<span class="font-mono-label text-caption ${Number(p.stock) > 0 ? 'text-primary' : 'text-error'}">${Number(p.stock) > 0 ? 'Skladem' : 'Vyprodáno'}</span>`
+    : '';
+  const addBtn = soldout
+    ? `<button disabled aria-label="Vyprodáno" class="bg-surface border border-outline-variant text-on-surface-variant rounded-full p-2 opacity-50 cursor-not-allowed"><span class="material-symbols-outlined text-[20px]">block</span></button>`
+    : `<button onclick='Cart.add(${JSON.stringify({
+        id: Number(p.id), name: p.name, price: Number(p.price),
+        sale_price: p.sale_price ? Number(p.sale_price) : null,
+        type: p.type, slug: p.slug
+      }).replace(/'/g, "&#39;")})' aria-label="Přidat do košíku" class="bg-surface border border-outline hover:border-primary text-on-surface hover:text-primary rounded-full p-2 transition-colors"><span class="material-symbols-outlined text-[20px]">add_shopping_cart</span></button>`;
+
+  const el = document.createElement('article');
+  el.className = 'bg-surface-container border border-outline-variant rounded-xl p-md flex flex-col group relative transition-colors hover:border-primary/50';
+  el.innerHTML = `
+    ${badge ? `<div class="absolute top-sm left-sm z-10">${badge}</div>` : ''}
+    <a href="product.php?slug=${encodeURIComponent(p.slug)}" class="aspect-square ${bg} rounded-lg mb-md flex items-center justify-center relative overflow-hidden border border-outline-variant/50 group-hover:scale-[1.02] transition-transform duration-300">
+      <span class="font-mono-label text-mono-label text-white/70 uppercase tracking-widest text-center px-sm">${esc(p.category_name || 'VeVit')}</span>
+    </a>
+    <div class="flex items-center justify-between mb-xs">
+      <span class="font-mono-label text-caption text-on-surface-variant uppercase">${digital ? 'Digitální' : 'Fyzický'}</span>
+      ${stock}
+    </div>
+    <a href="product.php?slug=${encodeURIComponent(p.slug)}" class="font-h2 text-h2 text-on-surface mb-xs line-clamp-1 hover:text-primary transition-colors">${esc(p.name)}</a>
+    <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-sm flex-1">${esc(p.short_desc || '')}</p>
+    <div class="flex justify-between items-center mt-sm pt-sm border-t border-outline-variant">
+      <div class="flex flex-col">
+        <span class="font-h2 text-h2 text-primary">${fmtPrice(price)}</span>
+        ${sale ? `<span class="font-caption text-caption text-on-surface-variant line-through">${fmtPrice(Number(p.price))}</span>` : ''}
+      </div>
+      ${addBtn}
+    </div>`;
+  return el;
+}
+
+/* ---------- Banner karusel ---------- */
+const bannerSlides = document.querySelectorAll('.banner-slide');
+const bannerDots = document.querySelectorAll('.banner-dot');
+let bannerIndex = 0;
+let bannerTimer = null;
+function showBanner(i) {
+  bannerIndex = (i + bannerSlides.length) % bannerSlides.length;
+  bannerSlides.forEach((s, idx) => s.style.opacity = idx === bannerIndex ? '1' : '0');
+  bannerDots.forEach((d, idx) => {
+    d.classList.toggle('bg-white', idx === bannerIndex);
+    d.classList.toggle('w-4', idx === bannerIndex);
+    d.classList.toggle('bg-white/60', idx !== bannerIndex);
+    d.classList.toggle('w-2', idx !== bannerIndex);
+  });
+}
+function startBanner() {
+  if (!bannerSlides.length) return;
+  showBanner(0);
+  bannerDots.forEach(d => d.addEventListener('click', () => {
+    showBanner(Number(d.dataset.go));
+    restartBanner();
+  }));
+  restartBanner();
+}
+function restartBanner() {
+  if (bannerTimer) clearInterval(bannerTimer);
+  bannerTimer = setInterval(() => showBanner(bannerIndex + 1), 5000);
+}
+
+/* ---------- Sekce kategorií / značek / produktové řádky ---------- */
+
+// Obecné kategorie — jen rodiče (parent_id null)
+function renderCategories(cats) {
+  const parents = cats.filter(c => c.parent_id === null || c.parent_id === undefined);
+  if (!parents.length) return;
+  const grid = document.getElementById('categoriesGrid');
+  grid.innerHTML = '';
+  parents.forEach((cat, i) => {
+    const bg = catBg(cat.slug);
+    const large = i === 0;
+    const a = document.createElement('a');
+    a.href = `catalog.php?category=${encodeURIComponent(cat.slug)}`;
+    a.className = `${large ? 'sm:col-span-2' : ''} relative group rounded-xl overflow-hidden border border-outline-variant hard-shadow-hover block ${bg} h-[180px] sm:h-[200px]`;
+    a.innerHTML = `
+      <div class="absolute inset-0 bg-gradient-to-br from-black/20 via-black/40 to-black/70"></div>
+      <div class="absolute inset-0 flex items-center justify-center opacity-30 group-hover:opacity-50 transition-opacity">
+        <span class="material-symbols-outlined text-[100px] text-white">${esc(cat.icon || 'category')}</span>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent"></div>
+      <div class="absolute bottom-sm left-sm right-sm">
+        <h3 class="font-display ${large ? 'text-h1' : 'text-h2'} text-primary">${esc(cat.name)}</h3>
+        <p class="font-mono-label text-mono-label text-on-surface-variant mt-xs uppercase">${Number(cat.product_count)} produktů</p>
+      </div>
+      <div class="absolute top-sm right-sm bg-background/80 backdrop-blur p-2 rounded-full border border-outline-variant">
+        <span class="material-symbols-outlined text-primary text-[20px]">${esc(cat.icon || 'category')}</span>
+      </div>`;
+    grid.appendChild(a);
+  });
+  document.getElementById('categoriesSection').classList.remove('hidden');
+}
+
+// Specifické kategorie v sidebaru — 3 úrovně (rodič → dítě → vnuk)
+function renderSubcats(cats) {
+  const parents  = cats.filter(c => c.parent_id === null || c.parent_id === undefined);
+  const l2       = cats.filter(c => c.parent_id !== null && c.parent_id !== undefined);
+  if (!parents.length && !l2.length) return;
+  const list = document.getElementById('subcatsList');
+  list.innerHTML = '';
+
+  const subLink = (cat, indent) => {
+    const a = document.createElement('a');
+    a.href = `catalog.php?category=${encodeURIComponent(cat.slug)}`;
+    a.className = 'font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors py-xs rounded hover:bg-surface-container-high/50 flex items-center justify-between group ' + indent;
+    a.innerHTML = `<span class="truncate">${esc(cat.name)}</span><span class="font-caption text-caption text-on-surface-variant/60 group-hover:text-primary flex-shrink-0 ml-xs">${Number(cat.product_count)}</span>`;
+    return a;
+  };
+
+  parents.forEach(parent => {
+    const wrap = document.createElement('div');
+    wrap.className = 'flex flex-col gap-xs';
+    const head = document.createElement('a');
+    head.href = `catalog.php?category=${encodeURIComponent(parent.slug)}`;
+    head.className = 'font-mono-label text-mono-label text-on-surface uppercase tracking-wider pt-xs hover:text-primary transition-colors flex items-center gap-1';
+    head.innerHTML = `<span class="material-symbols-outlined text-[18px]">${esc(parent.icon || 'category')}</span> ${esc(parent.name)}`;
+    wrap.appendChild(head);
+
+    // 2. úroveň
+    const kids = l2.filter(c => Number(c.parent_id) === Number(parent.id));
+    kids.forEach(k => {
+      wrap.appendChild(subLink(k, 'pl-md'));
+      // 3. úroveň
+      const grandkids = l2.filter(c => Number(c.parent_id) === Number(k.id));
+      grandkids.forEach(g => wrap.appendChild(subLink(g, 'pl-lg')));
+    });
+
+    list.appendChild(wrap);
+  });
+  document.getElementById('subcatsSection').classList.remove('hidden');
+}
+
+// Značky — dlaždice
+function renderBrands(brands) {
+  if (!brands.length) return;
+  const grid = document.getElementById('brandsGrid');
+  grid.innerHTML = '';
+  brands.forEach(b => {
+    const a = document.createElement('a');
+    a.href = `catalog.php?brand=${encodeURIComponent(b.brand)}`;
+    a.className = 'bg-surface-container border border-outline-variant rounded-xl p-md flex flex-col items-center justify-center gap-xs hover:border-primary/50 hover:-translate-y-1 transition-all hard-shadow-hover aspect-[2/1]';
+    a.innerHTML = `
+      <span class="material-symbols-outlined text-[32px] text-primary">sell</span>
+      <span class="font-h2 text-h2 text-on-surface">${esc(b.brand)}</span>
+      <span class="font-mono-label text-mono-label text-on-surface-variant uppercase">${Number(b.product_count)} produktů</span>`;
+    grid.appendChild(a);
+  });
+  document.getElementById('brandsSection').classList.remove('hidden');
+}
+
+// Naplní produktový řádek
+function fillRow(gridId, sectionId, products) {
+  if (!products || !products.length) return;
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = '';
+  products.slice(0, 8).forEach(p => grid.appendChild(renderProductCard(p)));
+  document.getElementById(sectionId).classList.remove('hidden');
+}
+
+/* ---------- Hydratace navigace (přihlášený stav) ---------- */
+function authNode(user, mobile) {
+  const wrap = document.createElement('div');
+  wrap.className = 'flex items-center gap-sm';
+  const avatar = user.avatar_url
+    ? `<img src="${esc(user.avatar_url)}" alt="" class="w-8 h-8 rounded-full object-cover border border-outline-variant">`
+    : `<span class="material-symbols-outlined text-[24px] text-on-surface-variant">account_circle</span>`;
+  const name = user.full_name || user.nickname || user.email;
+  wrap.innerHTML = `
+    ${avatar}
+    <span class="font-body-md text-on-surface text-sm max-w-[120px] truncate">${esc(name)}</span>
+    <a href="logout.php" aria-label="Odhlásit se" class="text-on-surface-variant hover:text-error p-1 rounded transition-colors" title="Odhlásit se">
+      <span class="material-symbols-outlined text-[20px]">logout</span>
+    </a>`;
+  return wrap;
+}
+async function hydrateNav() {
+  try {
+    const res = await fetch('api/me.php');
+    const data = await res.json();
+    if (data && data.user) {
+      document.getElementById('navAuth').replaceChildren(authNode(data.user, false));
+      document.getElementById('navAuthMobile').replaceChildren(authNode(data.user, true));
+    }
+  } catch (e) { /* host — nechat přihlašovací tlačítko */ }
+}
+
+/* ---------- Načtení homepage ---------- */
+async function loadHome() {
+  try {
+    const [dealsRes, vevitRes, bestRes, recentRes, catRes, brandRes] = await Promise.all([
+      fetch('api/products.php?deals=1&per_page=8').then(r => r.json()).catch(() => ({})),
+      fetch('api/products.php?brand=VeVit&per_page=8').then(r => r.json()).catch(() => ({})),
+      fetch('api/products.php?sort=bestselling&per_page=8').then(r => r.json()).catch(() => ({})),
+      fetch('api/recent.php').then(r => r.json()).catch(() => ({})),
+      fetch('api/categories.php').then(r => r.json()).catch(() => ({})),
+      fetch('api/brands.php').then(r => r.json()).catch(() => ({}))
+    ]);
+
+    if (dealsRes.products)    fillRow('dealsGrid',  'dealsSection',  dealsRes.products);
+    if (vevitRes.products)    fillRow('vevitGrid',  'vevitSection',  vevitRes.products);
+    if (bestRes.products)     fillRow('bestGrid',   'bestSection',   bestRes.products);
+    if (recentRes.products)   fillRow('recentGrid', 'recentSection', recentRes.products);
+    if (catRes.categories)    { renderSubcats(catRes.categories); renderCategories(catRes.categories); }
+    if (brandRes.brands)      renderBrands(brandRes.brands);
+  } catch (err) {
+    console.error('Homepage load failed:', err);
+  }
+}
+
+document.getElementById('footerYear').textContent = '© ' + new Date().getFullYear() + ' VeVit Store';
+startBanner();
+hydrateNav();
+loadHome();
+</script>
+</body></html>

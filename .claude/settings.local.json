@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -r ' *)",
+      "Bash(curl -sS \"http://127.0.0.1:8765/api/products.php?category=merch\")",
+      "Bash(curl -sS \"http://127.0.0.1:8765/\")",
+      "Bash(curl -sS \"http://127.0.0.1:8765/catalog.php?category=merch&type=physical&max_price=500\")"
+    ]
+  }
+}

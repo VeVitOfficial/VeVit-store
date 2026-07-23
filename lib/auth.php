@@ -38,7 +38,7 @@ function logoutUser(): void {
 function requireLogin(): array {
     $user = getCurrentUser();
     if (!$user) {
-        header('Location: index.php?login=1');
+        header('Location: index.html?login=1');
         exit;
     }
     return $user;

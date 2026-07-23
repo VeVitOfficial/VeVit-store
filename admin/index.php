@@ -34,7 +34,7 @@ $revenue = $pdo->query("SELECT COALESCE(SUM(total),0) FROM store_orders WHERE st
     <a href="orders.php" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">
       <span class="material-symbols-outlined text-[18px]">shopping_bag</span> Objednávky
     </a>
-    <a href="../index.php" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">
+    <a href="../index.html" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">
       <span class="material-symbols-outlined text-[18px]">arrow_back</span> Zpět do obchodu
     </a>
   </nav>
