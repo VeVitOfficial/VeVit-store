@@ -154,6 +154,6 @@ const Store = {
   }
 };
 
-function h(text) { return text?.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',''':'&#39;'}[c])) || ''; }
+function h(text) { return text?.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) || ''; }
 window.Store = Store;
 document.addEventListener('DOMContentLoaded', () => Store.init());

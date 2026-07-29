@@ -1,102 +1,79 @@
 <?php
+
+declare(strict_types=1);
+
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/lib/orders/OrderAccessService.php';
 
-$orderNumber = $_GET['order'] ?? '';
-$items = [];
+header('Cache-Control: no-store, private');
+header('Pragma: no-cache');
+header('Referrer-Policy: no-referrer');
+
+$publicId = $_GET['order'] ?? '';
 $order = null;
-
-if ($orderNumber) {
-  $stmt = $pdo->prepare("SELECT o.*, i.product_name, i.product_type, i.download_token, i.quantity AS item_qty, i.unit_price FROM store_orders o LEFT JOIN store_order_items i ON o.id = i.order_id WHERE o.order_number = ?");
-  $stmt->execute([$orderNumber]);
-  $rows = $stmt->fetchAll();
-  if ($rows) {
-    $order = $rows[0];
-    $items = array_filter($rows, fn($r) => !empty($r['product_name']));
-  }
+$items = [];
+if (is_string($publicId) && preg_match('/^[a-f0-9]{32}$/', $publicId)) {
+    $statement = $pdo->prepare('SELECT * FROM store_orders WHERE public_id = ? LIMIT 1');
+    $statement->execute([$publicId]);
+    $candidate = $statement->fetch();
+    $user = getCurrentUser();
+    $access = new OrderAccessService(new DateTimeImmutable('now', new DateTimeZone('UTC')));
+    if ($candidate && $access->canAccess($candidate, $user, OrderAccessService::sessionGrant($publicId), !empty($_SESSION['admin']), $publicId)) {
+        $order = $candidate;
+        $itemsStatement = $pdo->prepare('SELECT id, product_name, product_type, quantity, unit_price FROM store_order_items WHERE order_id = ? ORDER BY id');
+        $itemsStatement->execute([$order['id']]);
+        $items = $itemsStatement->fetchAll();
+    }
+}
+if ($order === null) {
+    store_log_security_event('order_access_rejected', ['public_id_prefix' => is_string($publicId) ? substr($publicId, 0, 8) : 'invalid']);
+    http_response_code(404);
+    exit('Stránka nebyla nalezena.');
 }
 
-$hasDigital = false;
-foreach ($items as $it) {
-  if ($it['product_type'] === 'digital' && $it['download_token']) { $hasDigital = true; break; }
-}
-
-$pageTitle = 'Objednávka potvrzena — VeVit Store';
+$statusLabels = [
+    'pending' => 'Platba se zpracovává',
+    'pending_checkout' => 'Čekáme na zahájení platby',
+    'awaiting_payment' => 'Čekáme na potvrzení platby',
+    'paid' => 'Objednávka zaplacena',
+    'processing' => 'Objednávka se zpracovává',
+    'shipped' => 'Objednávka odeslána',
+    'delivered' => 'Objednávka doručena',
+    'manual_review' => 'Platba přijata — objednávku ověřujeme',
+    'cancelled' => 'Objednávka zrušena',
+    'refunded' => 'Platba vrácena',
+];
+$canRequestDownloads = ($order['payment_status'] ?? null) === 'paid'
+    && ($order['fulfillment_status'] ?? null) !== 'manual_review'
+    && in_array($order['status'], ['paid', 'processing', 'shipped', 'delivered'], true);
+$pageTitle = 'Stav objednávky — VeVit Store';
 $activeNav = '';
 include __DIR__ . '/lib/header.php';
+$csrf = store_csrf_token('download');
 ?>
-
 <main class="flex-1 w-full max-w-[720px] mx-auto px-margin py-xl flex flex-col gap-md">
-
-  <!-- Hero -->
   <div class="flex flex-col items-center text-center gap-md">
-    <div class="w-20 h-20 rounded-full bg-primary/15 border border-primary flex items-center justify-center">
-      <span class="material-symbols-outlined text-[44px] text-primary icon-filled">check_circle</span>
-    </div>
-    <span class="font-mono-label text-mono-label text-primary uppercase tracking-widest">Krok 3 / 3</span>
-    <h1 class="font-display text-display text-on-surface">Hotovo!</h1>
-    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">Platba proběhla v pořádku. Děkujeme za nákup u VeVit Store.</p>
-    <?php if ($orderNumber): ?>
-    <div class="font-mono-label text-mono-label text-on-surface bg-surface-container border border-outline-variant rounded-DEFAULT px-md py-sm">
-      Číslo objednávky: <strong class="text-primary"><?= h($orderNumber) ?></strong>
-    </div>
-    <?php endif; ?>
+    <span class="font-mono-label text-mono-label text-primary uppercase tracking-widest">Objednávka</span>
+    <h1 class="font-display text-display text-on-surface"><?= h($statusLabels[$order['status']] ?? 'Stav objednávky') ?></h1>
+    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">Stav platby je ověřován na serveru. Návrat z platební brány sám o sobě platbu nepotvrzuje.</p>
+    <div class="font-mono-label text-mono-label text-on-surface bg-surface-container border border-outline-variant rounded-DEFAULT px-md py-sm">Číslo objednávky: <strong class="text-primary"><?= h($order['order_number']) ?></strong></div>
   </div>
-
-  <?php if ($hasDigital): ?>
-  <section class="bg-surface-container border border-outline-variant rounded-xl p-md mt-lg">
-    <div class="flex items-center gap-sm mb-md">
-      <span class="material-symbols-outlined text-primary">download</span>
-      <h2 class="font-h2 text-h2 text-on-surface">Digitální produkty ke stažení</h2>
-    </div>
-    <div class="flex flex-col gap-sm">
-      <?php foreach ($items as $item): if ($item['product_type'] !== 'digital' || !$item['download_token']) continue; ?>
-      <div class="flex flex-col sm:flex-row gap-sm justify-between items-start sm:items-center pb-sm border-b border-outline-variant/50 last:border-0 last:pb-0">
-        <div class="flex-1">
-          <div class="font-body-md text-on-surface"><?= h($item['product_name']) ?></div>
-          <div class="font-caption text-caption text-on-surface-variant">Odkaz platí 72 h, max. 5 stažení</div>
-        </div>
-        <a href="download.php?token=<?= h($item['download_token']) ?>" class="bg-primary-container text-on-primary-fixed font-mono-label text-mono-label py-sm px-md rounded border-2 border-on-primary-fixed neo-shadow uppercase inline-flex items-center gap-xs">
-          <span class="material-symbols-outlined text-[16px]">download</span> Stáhnout
-        </a>
-      </div>
-      <?php endforeach; ?>
-    </div>
+  <section class="bg-surface-container border border-outline-variant rounded-xl p-md">
+    <h2 class="font-h2 text-h2 text-on-surface mb-md">Souhrn</h2>
+    <?php foreach ($items as $item): ?>
+      <div class="flex justify-between gap-sm py-sm border-b border-outline-variant/50 last:border-0"><span class="text-on-surface"><?= h($item['product_name']) ?> ×<?= (int) $item['quantity'] ?></span><span class="text-on-surface-variant"><?= h((string) $item['unit_price']) ?> Kč</span></div>
+      <?php if ($canRequestDownloads && $item['product_type'] === 'digital'): ?><button class="request-download mt-sm bg-primary-container text-on-primary-fixed font-mono-label text-mono-label py-sm px-md rounded" data-item-id="<?= (int) $item['id'] ?>">Připravit stažení</button><?php endif; ?>
+    <?php endforeach; ?>
   </section>
-  <?php endif; ?>
-
-  <?php if ($order && !empty($items)): ?>
-  <section class="bg-surface-container border border-outline-variant rounded-xl p-md mt-lg">
-    <h2 class="font-h2 text-h2 text-on-surface mb-md pb-sm border-b border-outline-variant">Souhrn</h2>
-    <div class="flex flex-col gap-sm">
-      <?php foreach ($items as $item): ?>
-      <div class="flex justify-between items-center font-body-md text-body-md">
-        <span class="text-on-surface"><?= h($item['product_name']) ?> <span class="text-on-surface-variant">×<?= (int)$item['item_qty'] ?></span></span>
-        <span class="font-mono-label text-mono-label text-on-surface"><?= vv_format_price((float)$item['unit_price'] * (int)$item['item_qty']) ?></span>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <div class="flex justify-between items-center pt-md mt-md border-t border-outline-variant">
-      <span class="font-h2 text-h2 text-on-surface">Celkem</span>
-      <span class="font-display text-h1 text-primary"><?= vv_format_price((float)$order['total']) ?></span>
-    </div>
-    <?php if (!empty($order['customer_email'])): ?>
-    <p class="font-caption text-caption text-on-surface-variant mt-md">Potvrzení objednávky odesláno na <span class="text-on-surface"><?= h($order['customer_email']) ?></span></p>
-    <?php endif; ?>
-  </section>
-  <?php endif; ?>
-
-  <div class="flex justify-center mt-md">
-    <a href="catalog.php" class="bg-transparent border-2 border-outline-variant text-on-surface font-mono-label text-mono-label py-sm px-md rounded hover:border-primary hover:text-primary transition-colors uppercase inline-flex items-center gap-xs">
-      <span class="material-symbols-outlined">arrow_back</span> Zpět do katalogu
-    </a>
-  </div>
 </main>
-
 <script>
-// Clear cart after successful payment
-document.addEventListener('DOMContentLoaded', () => {
-  if (window.Cart) Cart.clear();
-});
+document.querySelectorAll('.request-download').forEach(button => button.addEventListener('click', async () => {
+  const response = await fetch('api/request-download.php', {method: 'POST', headers: {'Content-Type':'application/json','X-CSRF-Token':<?= json_encode($csrf) ?>}, body: JSON.stringify({order:<?= json_encode($publicId) ?>, item_id:Number(button.dataset.itemId)})});
+  const data = await response.json();
+  if (!data.download?.token) { window.showToast?.(data.error?.message || 'Stažení není k dispozici.', 'error'); return; }
+  const form = document.createElement('form'); form.method = 'POST'; form.action = 'download.php';
+  [['token', data.download.token], ['csrf', <?= json_encode($csrf) ?>]].forEach(([name, value]) => { const input = document.createElement('input'); input.type='hidden'; input.name=name; input.value=value; form.appendChild(input); });
+  document.body.appendChild(form); form.submit(); form.remove();
+}));
 </script>
-
 <?php include __DIR__ . '/lib/footer.php'; ?>

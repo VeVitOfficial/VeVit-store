@@ -63,7 +63,19 @@ $totalPages = max(1, (int) ceil($total / $perPage));
 $page = min($page, $totalPages);
 
 $offset = ($page - 1) * $perPage;
-$stmt = $pdo->prepare("SELECT p.*, p.featured::int AS featured, p.is_active::int AS is_active, c.name AS category_name, c.slug AS category_slug FROM store_products p LEFT JOIN store_categories c ON p.category_id = c.id WHERE $whereSql ORDER BY $order LIMIT $perPage OFFSET $offset");
+$stmt = $pdo->prepare(
+    "SELECT p.id, p.category_id, p.name, p.slug, p.description, p.short_desc,
+            p.price, p.sale_price, p.type, p.stock, p.images, p.brand, p.sku,
+            p.currency, p.created_at, p.featured::int AS featured,
+            p.is_active::int AS is_active, p.is_sellable::int AS is_sellable,
+            p.allow_backorder::int AS allow_backorder,
+            c.name AS category_name, c.slug AS category_slug
+       FROM store_products p
+       LEFT JOIN store_categories c ON p.category_id = c.id
+      WHERE $whereSql
+      ORDER BY $order
+      LIMIT $perPage OFFSET $offset"
+);
 $stmt->execute($params);
 $products = $stmt->fetchAll();
 

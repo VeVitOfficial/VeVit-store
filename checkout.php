@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php';
+$checkoutCsrfToken = store_csrf_token('checkout');
 $pageTitle = 'Pokladna — VeVit Store';
 $activeNav = 'cart';
 include __DIR__ . '/lib/header.php';
@@ -165,6 +166,14 @@ document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'Zdar
 document.getElementById('checkoutTotal').textContent = total.toLocaleString('cs-CZ') + ' Kč';
 
 let paying = false;
+function checkoutIdempotencyKey() {
+  const key = 'vevit_checkout_idempotency';
+  const current = sessionStorage.getItem(key);
+  if (current) return current;
+  const generated = window.crypto?.randomUUID ? window.crypto.randomUUID().replaceAll('-', '') : Array.from(window.crypto.getRandomValues(new Uint8Array(24)), b => b.toString(16).padStart(2, '0')).join('');
+  sessionStorage.setItem(key, generated);
+  return generated;
+}
 document.getElementById('payBtn').addEventListener('click', async () => {
   if (paying) return;
   const name = document.getElementById('checkoutName').value.trim();
@@ -194,6 +203,7 @@ document.getElementById('payBtn').addEventListener('click', async () => {
 
   const payload = {
     items: items.map(i => ({ product_id: i.id, quantity: i.qty })),
+    idempotency_key: checkoutIdempotencyKey(),
     email,
     name,
     shipping: hasPhysical ? {
@@ -208,14 +218,17 @@ document.getElementById('payBtn').addEventListener('click', async () => {
   try {
     const res = await fetch('api/create-checkout.php', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': <?= json_encode($checkoutCsrfToken) ?>, 'Idempotency-Key': checkoutIdempotencyKey() },
       body: JSON.stringify(payload)
     });
     const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
+    if (data.checkout) {
+      const payment = await fetch('api/create-payment.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': <?= json_encode($checkoutCsrfToken) ?> }, body: JSON.stringify({ snapshot: data.checkout.id }) });
+      const paymentData = await payment.json();
+      if (paymentData.url) { sessionStorage.removeItem('vevit_checkout_idempotency'); window.location.href = paymentData.url; return; }
+      throw new Error(paymentData.error?.message || 'Platbu se nepodařilo připravit.');
     } else {
-      window.showToast && window.showToast(data.error || 'Chyba při vytváření platby.', 'error');
+      window.showToast && window.showToast(data.error?.message || 'Chyba při přípravě objednávky.', 'error');
       paying = false;
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">credit_card</span> Zaplatit přes Stripe';

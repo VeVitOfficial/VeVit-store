@@ -1,5 +1,27 @@
 <?php
-session_start();
+
+declare(strict_types=1);
+
+$secretConfigPath = __DIR__ . '/../config_secret.php';
+if (!is_file($secretConfigPath) || !is_readable($secretConfigPath)) {
+    error_log('[admin bootstrap] Missing or unreadable config_secret.php');
+    http_response_code(500);
+    exit('Služba je dočasně nedostupná.');
+}
+
+require_once $secretConfigPath;
+require_once __DIR__ . '/../lib/config.php';
+require_once __DIR__ . '/../lib/session.php';
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    try {
+        store_start_session(store_load_config()['session']);
+    } catch (Throwable $exception) {
+        error_log(sprintf('[admin bootstrap] %s', $exception->getMessage()));
+        http_response_code(500);
+        exit('Služba je dočasně nedostupná.');
+    }
+}
 
 function requireAdmin(): void {
     if (empty($_SESSION['admin'])) {

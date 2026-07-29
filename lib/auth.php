@@ -2,7 +2,11 @@
 // VeVit Store — user authentication against main Vevit database (public.users)
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
+    if (function_exists('store_start_session') && isset($GLOBALS['storeConfig']['session'])) {
+        store_start_session($GLOBALS['storeConfig']['session']);
+    } else {
+        session_start();
+    }
 }
 
 function getCurrentUser(): ?array {
@@ -28,6 +32,11 @@ function loginUser(string $email, string $password): ?array {
 }
 
 function logoutUser(): void {
+    if (function_exists('store_destroy_session')) {
+        store_destroy_session();
+        return;
+    }
+
     $_SESSION = [];
     if (isset($_COOKIE[session_name()])) {
         setcookie(session_name(), '', ['expires' => time() - 3600, 'path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'Lax']);

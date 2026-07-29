@@ -1,6 +1,25 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config_secret.php';
+
+declare(strict_types=1);
+
+$secretConfigPath = __DIR__ . '/../config_secret.php';
+if (!is_file($secretConfigPath) || !is_readable($secretConfigPath)) {
+    error_log('[admin bootstrap] Missing or unreadable config_secret.php');
+    http_response_code(500);
+    exit('Služba je dočasně nedostupná.');
+}
+
+require_once $secretConfigPath;
+require_once __DIR__ . '/../lib/config.php';
+require_once __DIR__ . '/../lib/session.php';
+
+try {
+    store_start_session(store_load_config()['session']);
+} catch (Throwable $exception) {
+    error_log(sprintf('[admin bootstrap] %s', $exception->getMessage()));
+    http_response_code(500);
+    exit('Služba je dočasně nedostupná.');
+}
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -40,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <?php if ($error): ?>
-      <div class="bg-error/10 text-error font-body-md text-body-md px-md py-sm rounded-DEFAULT mb-md"><?= h($error) ?></div>
+      <div class="bg-error/10 text-error font-body-md text-body-md px-md py-sm rounded-DEFAULT mb-md"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
       <?php endif; ?>
 
       <form method="post" class="flex flex-col gap-md">

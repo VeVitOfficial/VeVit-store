@@ -1,5 +1,6 @@
 # Secrets
 config_secret.php
+.superpowers/
 
 # IDE
 .idea/

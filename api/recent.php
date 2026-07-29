@@ -14,7 +14,11 @@ if (!$user) {
 }
 
 $stmt = $pdo->prepare("
-  SELECT p.*, p.featured::int AS featured, p.is_active::int AS is_active,
+  SELECT p.id, p.category_id, p.name, p.slug, p.description, p.short_desc,
+         p.price, p.sale_price, p.type, p.stock, p.images, p.brand, p.sku,
+         p.currency, p.created_at, p.featured::int AS featured,
+         p.is_active::int AS is_active, p.is_sellable::int AS is_sellable,
+         p.allow_backorder::int AS allow_backorder,
          c.name AS category_name, c.slug AS category_slug
   FROM store_product_views v
   JOIN store_products p ON v.product_id = p.id AND p.is_active = TRUE

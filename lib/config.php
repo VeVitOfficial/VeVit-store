@@ -1,0 +1,154 @@
+<?php
+
+declare(strict_types=1);
+
+final class StoreConfigurationException extends RuntimeException
+{
+}
+
+/**
+ * Loads only explicitly provided configuration. Values can come from a supplied
+ * test array, environment variables, or legacy constants from config_secret.php.
+ * No production secret is inferred from a hostname or source file.
+ *
+ * @param array<string, string|int|bool|null>|null $source
+ * @return array<string, mixed>
+ */
+function store_load_config(?array $source = null): array
+{
+    $read = static function (string $key, mixed $default = null) use ($source): mixed {
+        if ($source !== null && array_key_exists($key, $source)) {
+            return $source[$key];
+        }
+
+        $environment = getenv($key);
+        if ($environment !== false) {
+            return $environment;
+        }
+
+        if (defined($key)) {
+            return constant($key);
+        }
+
+        return $default;
+    };
+
+    $appEnv = strtolower(trim((string) $read('APP_ENV', 'production')));
+    if (!in_array($appEnv, ['development', 'staging', 'production', 'test'], true)) {
+        throw new StoreConfigurationException('APP_ENV is invalid.');
+    }
+
+    $appUrl = rtrim(trim((string) $read('APP_URL')), '/');
+    if ($appUrl === '' || filter_var($appUrl, FILTER_VALIDATE_URL) === false) {
+        throw new StoreConfigurationException('APP_URL must be a valid absolute URL.');
+    }
+
+    $urlParts = parse_url($appUrl);
+    $scheme = $urlParts['scheme'] ?? '';
+    if (!in_array($scheme, ['http', 'https'], true)) {
+        throw new StoreConfigurationException('APP_URL must use HTTP or HTTPS.');
+    }
+    if ($appEnv === 'production' && $scheme !== 'https') {
+        throw new StoreConfigurationException('Production APP_URL must use HTTPS.');
+    }
+
+    $dsn = trim((string) $read('DB_DSN'));
+    if ($dsn === '') {
+        $legacyHost = trim((string) $read('DB_HOST'));
+        $legacyPort = trim((string) $read('DB_PORT', '5432'));
+        $legacyName = trim((string) $read('DB_NAME'));
+        if ($legacyHost !== '' && $legacyName !== '') {
+            $dsn = sprintf('pgsql:host=%s;port=%s;dbname=%s', $legacyHost, $legacyPort, $legacyName);
+        }
+    }
+    if (!str_starts_with($dsn, 'pgsql:')) {
+        throw new StoreConfigurationException('A PostgreSQL DB_DSN is required.');
+    }
+
+    $dbUser = (string) $read('DB_USER');
+    $dbPass = (string) $read('DB_PASS');
+    if ($dbUser === '' || $dbPass === '') {
+        throw new StoreConfigurationException('Database credentials are required.');
+    }
+
+    $storagePath = rtrim((string) $read('APP_STORAGE_PATH'), DIRECTORY_SEPARATOR);
+    if ($storagePath === '' || !str_starts_with($storagePath, DIRECTORY_SEPARATOR)) {
+        throw new StoreConfigurationException('APP_STORAGE_PATH must be an absolute path outside the web root.');
+    }
+    $storageRealPath = realpath($storagePath);
+    $applicationRoot = realpath(dirname(__DIR__));
+    if ($storageRealPath === false || !is_dir($storageRealPath) || !is_readable($storageRealPath)) {
+        throw new StoreConfigurationException('APP_STORAGE_PATH must be an existing readable directory.');
+    }
+    if ($applicationRoot !== false
+        && ($storageRealPath === $applicationRoot
+            || str_starts_with($storageRealPath, $applicationRoot . DIRECTORY_SEPARATOR))) {
+        throw new StoreConfigurationException('APP_STORAGE_PATH must be outside the application web root.');
+    }
+
+    $sessionName = (string) $read('SESSION_NAME', 'vevit_store_session');
+    $sessionSecure = store_config_bool($read('SESSION_COOKIE_SECURE', $scheme === 'https'));
+    if ($appEnv === 'production' && !$sessionSecure) {
+        throw new StoreConfigurationException('Production sessions must use secure cookies.');
+    }
+
+    $sameSite = ucfirst(strtolower((string) $read('SESSION_COOKIE_SAMESITE', 'Lax')));
+    if (!in_array($sameSite, ['Lax', 'Strict'], true)) {
+        throw new StoreConfigurationException('SESSION_COOKIE_SAMESITE must be Lax or Strict.');
+    }
+
+    $allowedOrigins = array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) $read('STORE_ALLOWED_ORIGINS', ''))
+    )));
+    foreach ($allowedOrigins as $origin) {
+        if (filter_var($origin, FILTER_VALIDATE_URL) === false) {
+            throw new StoreConfigurationException('STORE_ALLOWED_ORIGINS contains an invalid URL.');
+        }
+    }
+
+    return [
+        'app_env' => $appEnv,
+        'app_url' => $appUrl,
+        'storage_path' => $storageRealPath,
+        'database' => ['dsn' => $dsn, 'user' => $dbUser, 'pass' => $dbPass],
+        'session' => [
+            'name' => $sessionName,
+            'path' => '/',
+            'secure' => $sessionSecure,
+            'same_site' => $sameSite,
+        ],
+        'stripe' => [
+            'secret_key' => (string) $read('STRIPE_SECRET_KEY', ''),
+            'webhook_secret' => (string) $read('STRIPE_WEBHOOK_SECRET', ''),
+            'account_id' => (string) $read('STRIPE_ACCOUNT_ID', ''),
+        ],
+        'allowed_origins' => $allowedOrigins,
+    ];
+}
+
+function store_config_bool(mixed $value): bool
+{
+    if (is_bool($value)) {
+        return $value;
+    }
+
+    $parsed = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    if ($parsed === null) {
+        throw new StoreConfigurationException('Boolean configuration value is invalid.');
+    }
+
+    return $parsed;
+}
+
+/** @param array<string, mixed> $config */
+function store_connect_database(array $config): PDO
+{
+    $database = $config['database'];
+    $pdo = new PDO($database['dsn'], $database['user'], $database['pass']);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+    return $pdo;
+}
