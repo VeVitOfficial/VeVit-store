@@ -1,86 +1,114 @@
 <?php
 // Shared Tailwind config + head assets for VeVit Store
 // Usage: include in <head>
+$vvBase = defined('VEVIT_BASE') ? VEVIT_BASE : '';
 ?>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect">
-<link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= defined('VEVIT_BASE') ? VEVIT_BASE : '' ?>assets/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="<?= $vvBase ?>assets/css/style.css">
+<link rel="icon" href="<?= $vvBase ?>images/icon.ico" type="image/x-icon">
 <script id="tailwind-config">
 tailwind.config = {
   darkMode: "class",
   theme: {
     extend: {
       colors: {
-        "surface": "#131313",
-        "surface-dim": "#131313",
-        "surface-bright": "#3a3939",
-        "surface-container-lowest": "#0e0e0e",
-        "surface-container-low": "#1c1b1b",
-        "surface-container": "#201f1f",
-        "surface-container-high": "#2a2a2a",
-        "surface-container-highest": "#353534",
-        "surface-variant": "#353534",
-        "on-surface": "#e5e2e1",
-        "on-surface-variant": "#bbcabf",
-        "outline": "#86948a",
-        "outline-variant": "#3c4a42",
-        "primary": "#4edea3",
-        "on-primary": "#003824",
-        "primary-container": "#10b981",
-        "on-primary-container": "#00422b",
-        "primary-fixed": "#6ffbbe",
-        "primary-fixed-dim": "#4edea3",
-        "on-primary-fixed": "#002113",
-        "on-primary-fixed-variant": "#005236",
-        "secondary": "#bdc7d9",
-        "on-secondary": "#27313f",
-        "secondary-container": "#404a59",
-        "on-secondary-container": "#afb9cb",
-        "tertiary": "#c6c6c7",
-        "on-tertiary": "#2f3131",
-        "tertiary-container": "#a2a3a3",
-        "error": "#ffb4ab",
-        "on-error": "#690005",
-        "error-container": "#93000a",
-        "background": "#131313",
-        "on-background": "#e5e2e1"
+        /* Surface hierarchy */
+        "surface":                    "#131313",
+        "surface-dim":                "#0f1117",
+        "surface-bright":             "#3a3939",
+        "surface-container-lowest":   "#0e0e0e",
+        "surface-container-low":      "#1a1a1a",
+        "surface-container":          "#201f1f",
+        "surface-container-high":     "#2a2a2a",
+        "surface-container-highest":  "#353534",
+        "surface-variant":            "#353534",
+        /* Text */
+        "on-surface":                 "#e5e2e1",
+        "on-surface-variant":         "#bbcabf",
+        /* Borders */
+        "outline":                    "#86948a",
+        "outline-variant":            "#3c4a42",
+        /* Primary */
+        "primary":                    "#4edea3",
+        "on-primary":                 "#003824",
+        "primary-container":          "#10b981",
+        "on-primary-container":       "#00422b",
+        "primary-fixed":              "#6ffbbe",
+        "primary-fixed-dim":          "#4edea3",
+        "on-primary-fixed":           "#002113",
+        "on-primary-fixed-variant":   "#005236",
+        /* Secondary */
+        "secondary":                  "#bdc7d9",
+        "on-secondary":               "#27313f",
+        "secondary-container":        "#404a59",
+        "on-secondary-container":     "#afb9cb",
+        /* Tertiary */
+        "tertiary":                   "#c6c6c7",
+        "on-tertiary":                "#2f3131",
+        "tertiary-container":         "#a2a3a3",
+        /* Error */
+        "error":                      "#f87171",
+        "on-error":                   "#690005",
+        "error-container":            "#93000a",
+        /* Warning */
+        "warning":                    "#fb923c",
+        "warning-container":          "#431a00",
+        /* Success */
+        "success":                    "#4ade80",
+        /* Background */
+        "background":                 "#131313",
+        "on-background":              "#e5e2e1",
       },
       borderRadius: {
-        DEFAULT: "0.125rem",
-        lg: "0.25rem",
-        xl: "0.5rem",
-        full: "0.75rem"
+        DEFAULT: "0.375rem",
+        sm:  "0.375rem",
+        md:  "0.625rem",
+        lg:  "0.875rem",
+        xl:  "1.25rem",
+        "2xl": "1.75rem",
+        full:"9999px"
       },
       spacing: {
-        xs: "4px",
-        sm: "12px",
-        base: "8px",
-        md: "24px",
-        lg: "48px",
-        xl: "80px",
+        xs:     "4px",
+        sm:     "12px",
+        base:   "8px",
+        md:     "24px",
+        lg:     "48px",
+        xl:     "80px",
         margin: "32px",
         gutter: "24px"
       },
       fontFamily: {
-        "display": ["Plus Jakarta Sans"],
-        "h1": ["Plus Jakarta Sans"],
-        "h2": ["Plus Jakarta Sans"],
-        "body-lg": ["Plus Jakarta Sans"],
-        "body-md": ["Plus Jakarta Sans"],
-        "caption": ["Plus Jakarta Sans"],
-        "mono-label": ["Space Grotesk"]
+        "display":   ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        "h1":        ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        "h2":        ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        "body-lg":   ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        "body-md":   ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        "caption":   ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        "mono-label":['"Space Grotesk"', 'ui-monospace', 'monospace'],
+        "sans":      ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        "mono":      ['"Space Grotesk"', 'ui-monospace', 'monospace'],
       },
       fontSize: {
-        "display": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "800" }],
-        "h1": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
-        "h2": ["24px", { lineHeight: "1.3", fontWeight: "700" }],
-        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
-        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
-        "mono-label": ["14px", { lineHeight: "1.0", letterSpacing: "0.05em", fontWeight: "500" }],
-        "caption": ["12px", { lineHeight: "1.4", fontWeight: "500" }]
+        "display":    ["48px", { lineHeight: "1.1",  letterSpacing: "-0.02em", fontWeight: "800" }],
+        "h1":         ["32px", { lineHeight: "1.2",  fontWeight: "700" }],
+        "h2":         ["22px", { lineHeight: "1.35", fontWeight: "700" }],
+        "body-lg":    ["18px", { lineHeight: "1.65", fontWeight: "400" }],
+        "body-md":    ["16px", { lineHeight: "1.65", fontWeight: "400" }],
+        "mono-label": ["13px", { lineHeight: "1.0",  letterSpacing: "0.05em", fontWeight: "600" }],
+        "caption":    ["12px", { lineHeight: "1.4",  fontWeight: "500" }]
+      },
+      boxShadow: {
+        "neo": "4px 4px 0px 0px #10b981",
+        "neo-hover": "6px 6px 0px 0px #10b981",
+        "neo-active": "2px 2px 0px 0px #10b981",
+      },
+      maxWidth: {
+        "store": "1280px",
       }
     }
   }
