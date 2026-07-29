@@ -486,9 +486,9 @@ html, body {
   font-size: 14px;
   pointer-events: auto;
 }
-.toast.success { border-left: 3px solid var(--clr-primary); }
-.toast.error   { border-left: 3px solid var(--clr-danger); }
-.toast.warning { border-left: 3px solid var(--clr-warning); }
+.toast.success { box-shadow: inset 0 2px 0 var(--clr-primary); }
+.toast.error   { box-shadow: inset 0 2px 0 var(--clr-danger); }
+.toast.warning { box-shadow: inset 0 2px 0 var(--clr-warning); }
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(8px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }

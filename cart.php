@@ -100,7 +100,8 @@ function goToCheckout() {
 function esc(t) {
   const d = document.createElement('div');
   d.textContent = t;
-  return d.innerHTML;
+  // innerHTML escapes <, >, & — but NOT " or ' which can break out of attribute context
+  return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 const catBgMap = {
@@ -130,7 +131,7 @@ function renderCart() {
     const badgeClass = item.type === 'digital' ? 'badge-primary' : 'badge-neutral';
     return `
       <article class="flex flex-col sm:flex-row gap-4 p-5 bg-surface-container border border-outline-variant rounded-xl">
-        <a href="product.php?slug=${esc(item.slug)}"
+        <a href="product.php?slug=${encodeURIComponent(item.slug)}"
            class="w-full sm:w-28 h-28 ${bg} rounded-lg border border-outline-variant/50 flex items-center justify-center shrink-0 overflow-hidden hover:opacity-90 transition-opacity"
            aria-label="${esc(item.name)}">
           <span class="material-symbols-outlined text-white/25 text-[40px]" aria-hidden="true">image</span>
@@ -142,7 +143,7 @@ function renderCart() {
               <h2 class="font-semibold text-on-surface text-[15px] leading-snug">${esc(item.name)}</h2>
               <p class="text-sm text-on-surface-variant mt-0.5">${Number(item.price).toLocaleString('cs-CZ')} Kč / ks</p>
             </div>
-            <button onclick="Cart.remove(${item.id})"
+            <button onclick="Cart.remove(${Number(item.id)})"
                     class="btn-icon btn-ghost btn-sm text-on-surface-variant hover:text-error shrink-0"
                     aria-label="Odstranit ${esc(item.name)}">
               <span class="material-symbols-outlined text-[20px]" aria-hidden="true">delete</span>
@@ -150,12 +151,12 @@ function renderCart() {
           </div>
           <div class="flex justify-between items-center mt-auto">
             <div class="qty-group" role="group" aria-label="Množství">
-              <button onclick="Cart.updateQuantity(${item.id}, ${item.qty - 1})"
+              <button onclick="Cart.updateQuantity(${Number(item.id)}, ${Number(item.qty) - 1})"
                       class="qty-btn" aria-label="Méně">
                 <span class="material-symbols-outlined text-[16px]" aria-hidden="true">remove</span>
               </button>
-              <span class="qty-val" aria-live="polite">${item.qty}</span>
-              <button onclick="Cart.updateQuantity(${item.id}, ${item.qty + 1})"
+              <span class="qty-val" aria-live="polite">${Number(item.qty)}</span>
+              <button onclick="Cart.updateQuantity(${Number(item.id)}, ${Number(item.qty) + 1})"
                       class="qty-btn" aria-label="Více">
                 <span class="material-symbols-outlined text-[16px]" aria-hidden="true">add</span>
               </button>
