@@ -289,14 +289,15 @@ function renderProductCard(p) {
       ? `<span class="badge badge-primary">Digitální</span>`
       : '';
 
+  const productPayload = JSON.stringify({
+    id: Number(p.id), name: p.name, price: Number(p.price),
+    sale_price: p.sale_price ? Number(p.sale_price) : null,
+    type: p.type, slug: p.slug
+  });
   const addBtnHtml = soldout
     ? `<button disabled aria-label="Vyprodáno" class="btn btn-icon btn-sm bg-surface border border-outline-variant text-on-surface-variant cursor-not-allowed opacity-50"><span class="material-symbols-outlined text-[18px]">block</span></button>`
     : `<button
-        onclick='Cart.add(${JSON.stringify({
-          id: Number(p.id), name: p.name, price: Number(p.price),
-          sale_price: p.sale_price ? Number(p.sale_price) : null,
-          type: p.type, slug: p.slug
-        }).replace(/'/g, "&#39;")})'
+        data-add-product="${productPayload.replace(/"/g, '&quot;')}"
         aria-label="Přidat ${esc(p.name)} do košíku"
         class="btn btn-icon btn-sm bg-surface border border-outline-variant hover:border-primary text-on-surface hover:text-primary transition-colors">
         <span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
@@ -481,6 +482,16 @@ async function loadHome() {
     console.error('Homepage load failed:', err);
   }
 }
+
+/* ---- Event delegation for add-to-cart buttons ---- */
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-add-product]');
+  if (!btn) return;
+  try {
+    const product = JSON.parse(btn.dataset.addProduct);
+    Cart.add(product);
+  } catch { /* malformed data — silently ignore */ }
+});
 
 startBanner();
 hydrateNav();
