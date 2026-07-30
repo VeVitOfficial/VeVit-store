@@ -14,13 +14,19 @@ zálohách přístupných zákazníkům ani ve frontendovém JavaScriptu.
 |---|---|---|
 | `APP_ENV` | `development`, `staging`, `production` nebo `test` | produkci nastavujte explicitně |
 | `APP_URL` | kanonická veřejná URL | v produkci pouze HTTPS |
-| `APP_STORAGE_PATH` | existující čitelný adresář mimo veřejný web root | nesmí být uvnitř adresáře aplikace |
+| `APP_STORAGE_PATH` | existující čitelný a zapisovatelný adresář mimo veřejný web root | nesmí být symlink ani uvnitř adresáře aplikace; režim `0700` |
 | `DB_DSN` | PostgreSQL PDO DSN | musí začínat `pgsql:` |
 | `DB_USER`, `DB_PASS` | účet DB s minimálními právy | nikdy neposílat klientovi |
 | `SESSION_NAME` | název PHP session cookie | pouze písmena, čísla, `_` a `-` |
 | `SESSION_COOKIE_SECURE` | příznak Secure cookie | v produkci vždy `true` |
 | `SESSION_COOKIE_SAMESITE` | `Lax` nebo `Strict` | nepoužívat `None` bez ověřené cross-site potřeby |
 | `ADMIN_PASSWORD_HASH` | hash pro současné administrační přihlášení | vytvořit přes `password_hash()`, nikdy necommitovat |
+| `CASE_ATTACHMENT_MAX_BYTES` | limit jednoho souboru, výchozí 10 MiB | musí odpovídat PHP/Apache upload limitu |
+| `CASE_ATTACHMENT_MAX_FILES` | maximum aktivních příloh jednoho případu | 1–20 |
+| `CASE_ATTACHMENT_ALLOWED_MIME` | serverový allowlist MIME | pouze JPEG, PNG, WebP a PDF |
+| `RETURN_REQUEST_DAYS` | interní obchodní okno žádosti | není právním tvrzením; potvrďte s obchodem |
+| `ADMIN_REAUTH_SECONDS` | okno recent admin authentication | 60–3600 sekund |
+| `TRACKING_CARRIER_ORIGINS_JSON` | JSON mapování kódu dopravce na HTTPS origin | cizí tracking URL se nevykreslí |
 
 Legacy kombinace `DB_HOST`, `DB_PORT` a `DB_NAME` je dočasně podporovaná pro
 kompatibilitu s aktuálním projektem. Nové nasazení má používat `DB_DSN`.
@@ -95,3 +101,25 @@ Chybějící nebo neplatná kritická konfigurace vrátí zákazníkovi pouze
 „Služba je dočasně nedostupná.“ Detail se zapisuje do serverového error logu.
 Neopravujte problém přidáním výchozích produkčních hostů, hesel nebo Stripe
 klíčů do kódu.
+
+## Privátní přílohy
+
+`APP_STORAGE_PATH` musí být absolutní, existující, zapisovatelný adresář mimo
+document root, nesmí být symlink a musí mít režim bez group/world přístupu
+(doporučeno `0700`). Aplikace vytváří podadresáře `0700` a soubory `0600`.
+Výchozí Apache limity v `.htaccess` jsou 10 MiB/11 MiB; při jiné hodnotě
+`CASE_ATTACHMENT_MAX_BYTES` je upravte v panelu hostingu. Přílohy se nikdy
+nezpřístupňují statickou URL.
+
+Doporučená retence: revokovaný/soft-deleted objekt nejprve ponechat pro audit,
+poté jej odstranit samostatným, evidovaným cleanup jobem až po obchodně a právně
+schválené retenční době. Tento release automatický retenční job nespouští.
+
+## Blokující deployment kontroly
+
+- produkční PostgreSQL role PHP a její RLS chování musí být potvrzeny;
+- serverový kontrakt VeVit Account není dokončen, proto account seznamy a
+  favorites zůstávají fail-closed;
+- sdílené admin heslo je pouze legacy režim, nikoli individuální RBAC;
+- automatický Stripe refund a důvěryhodný import refund evidence nejsou součástí
+  tohoto releasu; potvrzení refundu zůstává fail-closed.

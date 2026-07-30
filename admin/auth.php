@@ -12,9 +12,15 @@ if (!is_file($secretConfigPath) || !is_readable($secretConfigPath)) {
 require_once $secretConfigPath;
 require_once __DIR__ . '/../lib/config.php';
 require_once __DIR__ . '/../lib/session.php';
+require_once __DIR__ . '/../lib/auth/ActorContext.php';
+require_once __DIR__ . '/../lib/admin/LegacyAdminActor.php';
+require_once __DIR__ . '/../lib/http.php';
+require_once __DIR__ . '/../lib/RateLimiter.php';
 
 try {
-    store_start_session(store_load_config()['session']);
+    $adminConfig = store_load_config();
+    store_start_session($adminConfig['session']);
+    $adminPdo = store_connect_database($adminConfig);
 } catch (Throwable $exception) {
     error_log(sprintf('[admin bootstrap] %s', $exception->getMessage()));
     http_response_code(500);
@@ -23,14 +29,47 @@ try {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $password = $_POST['password'] ?? '';
-    if (password_verify($password, ADMIN_PASSWORD_HASH)) {
-        session_regenerate_id(true);
-        $_SESSION['admin'] = true;
-        header('Location: index.php');
-        exit;
+    $attempts = array_values(array_filter($_SESSION['_admin_login_attempts'] ?? [], static fn ($at): bool => is_int($at) && $at > time() - 900));
+    if (!store_verify_csrf_token('admin_login', $_POST['csrf'] ?? null)) {
+        http_response_code(403);
+        $error = 'Platnost formuláře vypršela.';
     } else {
-        $error = 'Neplatné heslo.';
+        $remoteAddress = filter_var($_SERVER['REMOTE_ADDR'] ?? '', FILTER_VALIDATE_IP);
+        try {
+            (new StoreRateLimiter($adminPdo))->consume(
+                'admin_login',
+                is_string($remoteAddress) ? $remoteAddress : 'unknown_remote',
+                8,
+                900
+            );
+            $databaseRateLimited = false;
+        } catch (StoreRateLimitExceeded) {
+            $databaseRateLimited = true;
+        }
+        if ($databaseRateLimited || count($attempts) >= 8) {
+            http_response_code(429);
+            $error = 'Příliš mnoho pokusů. Zkuste to později.';
+        } else {
+            $password = $_POST['password'] ?? '';
+            if (!is_string($password) || strlen($password) > 4096) {
+                $password = '';
+            }
+            $configuredAdminHash = getenv('ADMIN_PASSWORD_HASH');
+            if ($configuredAdminHash === false || $configuredAdminHash === '') {
+                $configuredAdminHash = defined('ADMIN_PASSWORD_HASH') ? (string) ADMIN_PASSWORD_HASH : '';
+            }
+            if ($configuredAdminHash !== '' && password_verify($password, $configuredAdminHash)) {
+                unset($_SESSION['_admin_login_attempts']);
+                session_regenerate_id(true);
+                $_SESSION['admin'] = true;
+                LegacyAdminActor::establish($_SESSION, time());
+                header('Location: index.php');
+                exit;
+            }
+            $attempts[] = time();
+            $_SESSION['_admin_login_attempts'] = $attempts;
+            $error = 'Neplatné heslo.';
+        }
     }
 }
 ?>
@@ -63,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php endif; ?>
 
       <form method="post" class="flex flex-col gap-md">
+        <input type="hidden" name="csrf" value="<?= htmlspecialchars(store_csrf_token('admin_login'), ENT_QUOTES, 'UTF-8') ?>">
         <div>
           <label class="block font-mono-label text-mono-label text-on-surface-variant mb-xs">Heslo</label>
           <input type="password" name="password" placeholder="Zadejte heslo" required autofocus class="w-full bg-surface border border-outline-variant text-on-surface font-body-md px-md py-sm rounded-DEFAULT focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/50">

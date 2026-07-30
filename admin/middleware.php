@@ -12,6 +12,8 @@ if (!is_file($secretConfigPath) || !is_readable($secretConfigPath)) {
 require_once $secretConfigPath;
 require_once __DIR__ . '/../lib/config.php';
 require_once __DIR__ . '/../lib/session.php';
+require_once __DIR__ . '/../lib/auth/ActorContext.php';
+require_once __DIR__ . '/../lib/admin/LegacyAdminActor.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     try {
@@ -43,4 +45,10 @@ function validateCsrf(): void {
         http_response_code(403);
         die('Invalid CSRF token');
     }
+}
+
+function destroyAdminSession(): void {
+    LegacyAdminActor::destroy($_SESSION);
+    unset($_SESSION['admin'], $_SESSION['csrf'], $_SESSION['_store_csrf']);
+    session_regenerate_id(true);
 }

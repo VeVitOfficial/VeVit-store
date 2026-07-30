@@ -7,6 +7,12 @@
 define('APP_ENV', 'development'); // development | staging | production | test
 define('APP_URL', 'http://localhost:8000');
 define('APP_STORAGE_PATH', '/absolute/path/outside/public_html/vevit-store');
+define('CASE_ATTACHMENT_MAX_BYTES', 10 * 1024 * 1024);
+define('CASE_ATTACHMENT_MAX_FILES', 5);
+define('CASE_ATTACHMENT_ALLOWED_MIME', 'image/jpeg,image/png,image/webp,application/pdf');
+define('RETURN_REQUEST_DAYS', 14); // Business setting; not a legal statement.
+define('ADMIN_REAUTH_SECONDS', 300);
+define('TRACKING_CARRIER_ORIGINS_JSON', '{"ppl":"https://www.ppl.cz","dpd":"https://tracking.dpd.de"}');
 
 // Prefer DB_DSN. The legacy DB_HOST/DB_PORT/DB_NAME form remains supported.
 define('DB_DSN', 'pgsql:host=127.0.0.1;port=5432;dbname=vevit_store');

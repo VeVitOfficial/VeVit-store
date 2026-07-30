@@ -77,8 +77,10 @@ function store_load_config(?array $source = null): array
     }
     $storageRealPath = realpath($storagePath);
     $applicationRoot = realpath(dirname(__DIR__));
-    if ($storageRealPath === false || !is_dir($storageRealPath) || !is_readable($storageRealPath)) {
-        throw new StoreConfigurationException('APP_STORAGE_PATH must be an existing readable directory.');
+    $storagePermissions = $storageRealPath === false ? false : fileperms($storageRealPath);
+    if ($storageRealPath === false || is_link($storagePath) || !is_dir($storageRealPath) || !is_readable($storageRealPath)
+        || !is_writable($storageRealPath) || $storagePermissions === false || ($storagePermissions & 0077) !== 0) {
+        throw new StoreConfigurationException('APP_STORAGE_PATH must be a private readable and writable directory.');
     }
     if ($applicationRoot !== false
         && ($storageRealPath === $applicationRoot
@@ -107,6 +109,29 @@ function store_load_config(?array $source = null): array
         }
     }
 
+    $attachmentMaxBytes = (int) $read('CASE_ATTACHMENT_MAX_BYTES', 10 * 1024 * 1024);
+    $attachmentMaxFiles = (int) $read('CASE_ATTACHMENT_MAX_FILES', 5);
+    $attachmentAllowedMime = array_values(array_filter(array_map('trim', explode(',', (string) $read(
+        'CASE_ATTACHMENT_ALLOWED_MIME',
+        'image/jpeg,image/png,image/webp,application/pdf'
+    )))));
+    if ($attachmentMaxBytes < 1024 || $attachmentMaxBytes > 50 * 1024 * 1024
+        || $attachmentMaxFiles < 1 || $attachmentMaxFiles > 20
+        || array_diff($attachmentAllowedMime, ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])) {
+        throw new StoreConfigurationException('Attachment limits or MIME allowlist are invalid.');
+    }
+    try {
+        $trackingCarriers = json_decode((string) $read('TRACKING_CARRIER_ORIGINS_JSON', '{}'), true, 8, JSON_THROW_ON_ERROR);
+    } catch (JsonException) {
+        throw new StoreConfigurationException('TRACKING_CARRIER_ORIGINS_JSON must be valid JSON.');
+    }
+    if (!is_array($trackingCarriers)) throw new StoreConfigurationException('Tracking carrier configuration must be an object.');
+    foreach ($trackingCarriers as $code => $origin) {
+        if (!is_string($code) || !preg_match('/^[a-z0-9_-]{1,32}$/', $code) || !is_string($origin) || !str_starts_with($origin, 'https://') || filter_var($origin, FILTER_VALIDATE_URL) === false) {
+            throw new StoreConfigurationException('Tracking carrier origin is invalid.');
+        }
+    }
+
     return [
         'app_env' => $appEnv,
         'app_url' => $appUrl,
@@ -124,6 +149,14 @@ function store_load_config(?array $source = null): array
             'account_id' => (string) $read('STRIPE_ACCOUNT_ID', ''),
         ],
         'allowed_origins' => $allowedOrigins,
+        'attachments' => [
+            'max_bytes' => $attachmentMaxBytes,
+            'max_files' => $attachmentMaxFiles,
+            'allowed_mime' => $attachmentAllowedMime,
+        ],
+        'return_request_days' => max(1, min(365, (int) $read('RETURN_REQUEST_DAYS', 14))),
+        'admin_reauth_seconds' => max(60, min(3600, (int) $read('ADMIN_REAUTH_SECONDS', 300))),
+        'tracking_carriers' => $trackingCarriers,
     ];
 }
 

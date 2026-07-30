@@ -127,6 +127,7 @@ $pdo->exec((string) file_get_contents(__DIR__ . '/task-0-4-base-schema.sql'));
 foreach ([
     '202607290001_checkout_snapshot_up.sql',
     '202607290002_order_access_and_download_grants_up.sql',
+    '2026072900025_order_status_enum_up.sql',
     '202607290003_payments_and_inventory_up.sql',
 ] as $migration) {
     $pdo->exec((string) file_get_contents(__DIR__ . '/../../migrations/' . $migration));
@@ -202,7 +203,7 @@ final class Task04StripeClient implements StripeCheckoutClient {
         return [
             'id' => 'cs_test_' . $parameters['client_reference_id'],
             'url' => 'https://checkout.stripe.com/c/pay/' . $parameters['client_reference_id'],
-            'expires_at' => 1785340800,
+            'expires_at' => time() + 86400,
             'mode' => 'payment',
             'status' => 'open',
             'payment_status' => 'unpaid',

@@ -34,6 +34,9 @@ $revenue = $pdo->query("SELECT COALESCE(SUM(total),0) FROM store_orders WHERE st
     <a href="orders.php" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">
       <span class="material-symbols-outlined text-[18px]">shopping_bag</span> Objednávky
     </a>
+    <a href="claims.php" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">Reklamace</a>
+    <a href="returns.php" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">Vrácení</a>
+    <a href="deliveries.php" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">Doručení</a>
     <a href="../index.html" class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-body-md transition-colors">
       <span class="material-symbols-outlined text-[18px]">arrow_back</span> Zpět do obchodu
     </a>
@@ -42,6 +45,7 @@ $revenue = $pdo->query("SELECT COALESCE(SUM(total),0) FROM store_orders WHERE st
 
 <!-- Main -->
 <main class="flex-1 p-gutter md:p-lg">
+  <div class="border border-amber-500/50 bg-amber-500/10 text-amber-100 rounded-DEFAULT p-md mb-md">Administrace používá dočasný sdílený účet. Jednotlivé administrátorské identity zatím nejsou ověřené.</div>
   <h1 class="font-display text-h1 text-on-surface mb-lg">Dashboard</h1>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">

@@ -1,4 +1,4 @@
-DirectoryIndex index.html
+DirectoryIndex index.php index.html
 
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -36,5 +36,7 @@ ServerSignature Off
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 </IfModule>
 
-php_value upload_max_filesize 5M
-php_value post_max_size 5M
+# Keep these at or above CASE_ATTACHMENT_MAX_BYTES (default 10 MiB). Hosts that
+# disallow php_value must configure the equivalent limits in their PHP panel.
+php_value upload_max_filesize 10M
+php_value post_max_size 11M

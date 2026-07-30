@@ -163,7 +163,12 @@ include __DIR__ . '/lib/header.php';
             <span class="material-symbols-outlined text-[18px]" aria-hidden="true">shopping_bag</span> Do košíku
           </button>
         <?php endif; ?>
+        <button id="favoriteButton" type="button" aria-pressed="false" aria-describedby="favoriteStatus" class="btn btn-lg btn-outline">
+          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">favorite</span>
+          Přidat do oblíbených
+        </button>
       </div>
+      <p id="favoriteStatus" class="font-caption text-caption text-on-surface-variant mb-4" aria-live="polite"></p>
 
       <!-- Trust badges -->
       <div class="flex flex-wrap gap-3 mb-6">
@@ -178,8 +183,7 @@ include __DIR__ . '/lib/header.php';
         <?php if (!$isDigital): ?>
         <div class="flex items-center gap-1.5 text-on-surface-variant">
           <span class="material-symbols-outlined text-[16px] text-primary icon-filled" aria-hidden="true">assignment_return</span>
-          <!-- [PLACEHOLDER — ověřit podmínky vrácení] -->
-          <span class="font-caption text-caption">14 dní na vrácení</span>
+          <span class="font-caption text-caption">Vrácení dle obchodních podmínek</span>
         </div>
         <?php endif; ?>
       </div>
@@ -205,10 +209,8 @@ include __DIR__ . '/lib/header.php';
               <p>Digitální produkt — stahování není vázáno na dopravce. Po potvrzení platby obdržíte odkaz ke stažení.</p>
               <p>Odkaz je platný <strong class="text-on-surface">72 hodin</strong> a umožňuje až <strong class="text-on-surface">5 stažení</strong>.</p>
             <?php else: ?>
-              <!-- [PLACEHOLDER — ověřit aktuální podmínky dopravy a vrácení] -->
-              <p>Doručení standardní zásilkovnou do 2 pracovních dnů po ČR.</p>
-              <p>Doprava ZDARMA u objednávek nad 1 000 Kč. Pod tuto hranici účtujeme 99 Kč.</p>
-              <p>14 denní lhůta na vrácení bez udání důvodu. Produkt musí být v původním stavu.</p>
+              <p>Konkrétní způsob, cenu a odhad dopravy potvrzuje objednávka před zaplacením.</p>
+              <p>Možnost vrácení se řídí aktuálními obchodními podmínkami a serverově nastaveným obchodním oknem; tato stránka neuvádí právní lhůtu.</p>
             <?php endif; ?>
           </div>
         </details>
@@ -302,6 +304,24 @@ function changeQty(delta) {
 }
 function addToCart() { Cart.add(__product, __qty); }
 function buyNow() { Cart.add(__product, 1); window.location.href = 'cart.php'; }
+document.getElementById('favoriteButton')?.addEventListener('click', async function () {
+  const button = this;
+  const status = document.getElementById('favoriteStatus');
+  try {
+    const response = await fetch('api/favorites/add.php', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {'Content-Type':'application/json','X-CSRF-Token':<?= json_encode(store_csrf_token('favorites')) ?>},
+      body: JSON.stringify({product_id: __product.id})
+    });
+    if (!response.ok) throw new Error('unavailable');
+    button.setAttribute('aria-pressed', 'true');
+    button.lastChild.textContent = ' V oblíbených';
+    status.textContent = 'Produkt byl přidán do oblíbených.';
+  } catch (error) {
+    status.textContent = 'Oblíbené produkty vyžadují ověřené přihlášení VeVit Account.';
+  }
+});
 </script>
 
 <?php include __DIR__ . '/lib/footer.php'; ?>
