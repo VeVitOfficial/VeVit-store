@@ -27,15 +27,28 @@ docker run --rm --network vevit-customer-agenda-net -v "$PWD:/app" -w /app \
 
 admin_hash="$(php -r "echo password_hash('http-test-admin', PASSWORD_DEFAULT);")"
 docker run -d --name "$server_name" --network vevit-customer-agenda-net -p 127.0.0.1::8080 \
-  -v "$PWD:/app" -w /app \
+  -v "$PWD:/app" -v "$PWD/tests/fixtures/empty-config-secret.php:/app/config_secret.php:ro" -w /app \
   -e APP_ENV=test -e APP_URL=http://127.0.0.1 -e APP_STORAGE_PATH=/tmp/vevit-http-storage \
-  -e 'DB_DSN=pgsql:host=vevit-customer-agenda-postgres;port=5432;dbname=vevit_store_test' \
-  -e DB_USER=vevit -e DB_PASS=test-only-password -e SESSION_COOKIE_SECURE=false -e SESSION_NAME=vevit_http_test \
+  -e DB_DSN="$VEVIT_STORE_TEST_DSN" \
+  -e DB_USER="$VEVIT_STORE_TEST_DB_USER" -e DB_PASS="$VEVIT_STORE_TEST_DB_PASS" \
+  -e SESSION_COOKIE_SECURE=false -e SESSION_NAME=vevit_http_test \
   -e 'TRACKING_CARRIER_ORIGINS_JSON={"ppl":"https://www.ppl.cz"}' \
   -e ADMIN_PASSWORD_HASH="$admin_hash" vevit-task04-php sh -lc 'mkdir -p -m 700 /tmp/vevit-http-storage; php -S 0.0.0.0:8080 router.php' >/dev/null
 port="$(docker port "$server_name" 8080/tcp | sed 's/.*://')"
 base="http://127.0.0.1:$port"
-for _ in $(seq 1 30); do curl -fsS "$base/orders.php" >/dev/null 2>&1 && break; sleep 0.2; done
+ready=false
+for _ in $(seq 1 30); do
+  if curl -fsS "$base/orders.php" >/dev/null 2>&1; then
+    ready=true
+    break
+  fi
+  sleep 0.2
+done
+if [[ "$ready" != true ]]; then
+  echo "HTTP test server did not become ready" >&2
+  docker logs "$server_name" 2>&1 | tail -30 >&2
+  exit 1
+fi
 
 # Create an exact guest-grant server session without adding a production backdoor.
 session_id="httpguest$(printf '%024d' "$RANDOM")"
