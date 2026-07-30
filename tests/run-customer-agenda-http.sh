@@ -89,8 +89,12 @@ test "$(wc -c <"$body")" -eq 36
 
 printf '\xFF\xD8\xFF\xE0%s' 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' >"$jpeg"
 curl -sS -b "$cookie_jar" -o "$body" -w '%{http_code}' -X POST \
-  -H "X-CSRF-Token: $customer_csrf" -H 'Idempotency-Key: http-upload-1' \
+  -H "X-CSRF-Token: $customer_csrf" -H 'Idempotency-Key: http-upload-dangerous-name' \
   -F 'case_type=claim' -F 'case_id=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' -F "attachment=@$jpeg;type=image/jpeg;filename=proof.php.jpg" \
+  "$base/api/attachments/upload.php" | grep -qx '422'
+curl -sS -b "$cookie_jar" -o "$body" -w '%{http_code}' -X POST \
+  -H "X-CSRF-Token: $customer_csrf" -H 'Idempotency-Key: http-upload-1' \
+  -F 'case_type=claim' -F 'case_id=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' -F "attachment=@$jpeg;type=image/jpeg;filename=proof.jpg" \
   "$base/api/attachments/upload.php" | grep -qx '201'
 grep -q '"attachment"' "$body"
 
