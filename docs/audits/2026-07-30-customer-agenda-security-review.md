@@ -15,6 +15,8 @@ fixture. Produkční Supabase ani produkční storage nebyly kontaktovány.
 - Attachment public ID: nestačí; download znovu ověří parent order grant/account,
   revokaci, scan stav, canonical path, POST a CSRF. HTTP test ověřuje úspěšný
   autorizovaný download i odmítnutí stejného public ID bez guest grantu.
+- Upload filename: executable MIME je odmítnut přes `finfo`; navíc se odmítají
+  nebezpečné executable/dvojité přípony typu `evidence.php.jpg`.
 - Supabase Data API: RLS je zapnuté, `PUBLIC` i `anon`/`authenticated` tabulkové
   a sekvenční grants jsou odebrané,
   nevzniká policy `USING (true)` ani žádná veřejná policy.
