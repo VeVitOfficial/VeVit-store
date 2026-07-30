@@ -5,7 +5,7 @@
 // Production requires HTTPS and SESSION_COOKIE_SECURE=true.
 
 define('APP_ENV', 'development'); // development | staging | production | test
-define('APP_URL', 'http://localhost:8000');
+define('APP_URL', 'http://localhost:5500');
 define('APP_STORAGE_PATH', '/absolute/path/outside/public_html/vevit-store');
 define('CASE_ATTACHMENT_MAX_BYTES', 10 * 1024 * 1024);
 define('CASE_ATTACHMENT_MAX_FILES', 5);
@@ -32,3 +32,10 @@ define('ADMIN_PASSWORD_HASH', '');
 define('STRIPE_SECRET_KEY', '');
 define('STRIPE_WEBHOOK_SECRET', '');
 define('STRIPE_ACCOUNT_ID', ''); // Optional acct_... guard for Stripe Connect/platform setups.
+
+// VeVit Account — central identity provider at account.vevit.cz.
+// Confirm both URLs with the VeVit Account team before deploying.
+// [B1] Exact me endpoint URL (default shown, must be verified).
+define('VEVIT_ACCOUNT_ME_URL',    'https://account.vevit.cz/api/me.php');
+// [B2] Login redirect URL and return_url parameter name must be confirmed.
+define('VEVIT_ACCOUNT_LOGIN_URL', 'https://account.vevit.cz/login');

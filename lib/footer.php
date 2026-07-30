@@ -24,8 +24,7 @@ $currentUser = $currentUser ?? null;
         <div class="flex items-center gap-2 flex-wrap">
           <span class="font-caption text-caption text-on-surface-variant uppercase tracking-wide">Platba:</span>
           <span class="badge badge-neutral">Karta</span>
-          <span class="badge badge-neutral">Apple Pay</span>
-          <span class="badge badge-neutral">Google Pay</span>
+          <span class="badge badge-neutral">Stripe</span>
         </div>
       </div>
 
@@ -149,8 +148,9 @@ $currentUser = $currentUser ?? null;
       <span class="font-caption text-[10px] font-semibold tracking-wide uppercase">Odhlásit</span>
     </a>
     <?php else: ?>
-    <button type="button" onclick="openLoginModal()"
-       class="flex-1 flex flex-col items-center justify-center gap-0.5 text-on-surface-variant hover:text-primary transition-colors duration-150">
+    <button type="button" onclick="if(window.VevitAccount)VevitAccount.openLogin();"
+       class="flex-1 flex flex-col items-center justify-center gap-0.5 text-on-surface-variant hover:text-primary transition-colors duration-150"
+       aria-label="Přihlásit se přes VeVit Account">
       <span class="material-symbols-outlined text-[22px]" aria-hidden="true">person</span>
       <span class="font-caption text-[10px] font-semibold tracking-wide uppercase">Účet</span>
     </button>

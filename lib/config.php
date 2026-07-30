@@ -132,6 +132,17 @@ function store_load_config(?array $source = null): array
         }
     }
 
+    // VeVit Account integration.
+    // [B1] Confirm me_url with VeVit Account team before production.
+    // [B2] Confirm login_url and return_url parameter name before production.
+    $vevitAccountMeUrl    = rtrim(trim((string) $read('VEVIT_ACCOUNT_ME_URL',    'https://account.vevit.cz/api/me.php')), '/');
+    $vevitAccountLoginUrl = rtrim(trim((string) $read('VEVIT_ACCOUNT_LOGIN_URL', 'https://account.vevit.cz/login')),      '/');
+    foreach (['vevit_account_me_url' => $vevitAccountMeUrl, 'vevit_account_login_url' => $vevitAccountLoginUrl] as $key => $url) {
+        if (filter_var($url, FILTER_VALIDATE_URL) === false || !str_starts_with($url, 'https://')) {
+            throw new StoreConfigurationException(strtoupper($key) . ' must be a valid https:// URL.');
+        }
+    }
+
     return [
         'app_env' => $appEnv,
         'app_url' => $appUrl,
@@ -157,6 +168,10 @@ function store_load_config(?array $source = null): array
         'return_request_days' => max(1, min(365, (int) $read('RETURN_REQUEST_DAYS', 14))),
         'admin_reauth_seconds' => max(60, min(3600, (int) $read('ADMIN_REAUTH_SECONDS', 300))),
         'tracking_carriers' => $trackingCarriers,
+        'vevit_account' => [
+            'me_url'    => $vevitAccountMeUrl,    // [B1]
+            'login_url' => $vevitAccountLoginUrl, // [B2]
+        ],
     ];
 }
 

@@ -108,9 +108,10 @@ $announcementLink = '';
         <span class="nav-cart-badge absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-primary-container text-on-primary-fixed text-[10px] font-bold rounded-full flex items-center justify-center" style="display:none" aria-label="položky v košíku">0</span>
       </a>
 
-      <!-- Account / Login -->
-      <div id="navAuth" class="flex items-center">
+      <!-- Account / Login — hydrated by vevit-account.js after page load -->
+      <div id="navAuth" class="flex items-center" aria-live="polite" aria-label="Stav přihlášení">
         <?php if ($currentUser): ?>
+          <!-- Transitional: server-side user from legacy local session -->
           <div class="flex items-center gap-2">
             <?php if (!empty($currentUser['avatar_url'])): ?>
               <img src="<?= h($currentUser['avatar_url']) ?>" alt="" width="32" height="32" class="w-8 h-8 rounded-full object-cover border border-outline-variant">
@@ -125,7 +126,8 @@ $announcementLink = '';
             </a>
           </div>
         <?php else: ?>
-          <button type="button" onclick="openLoginModal()" aria-label="Přihlášení" class="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150">
+          <!-- Default: login button; vevit-account.js replaces this with user info if authenticated -->
+          <button type="button" onclick="if(window.VevitAccount)VevitAccount.openLogin();" aria-label="Přihlásit se přes VeVit Account" class="p-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150">
             <span class="material-symbols-outlined text-[22px]" aria-hidden="true">account_circle</span>
           </button>
         <?php endif; ?>
@@ -250,7 +252,7 @@ $announcementLink = '';
           <span class="material-symbols-outlined text-[18px]" aria-hidden="true">logout</span> Odhlásit se
         </a>
       <?php else: ?>
-        <button type="button" onclick="openLoginModal(); closeDrawer();" class="btn btn-primary w-full justify-center">
+        <button type="button" onclick="if(window.VevitAccount){VevitAccount.openLogin();}closeDrawer();" class="btn btn-primary w-full justify-center">
           <span class="material-symbols-outlined text-[18px]" aria-hidden="true">login</span> Přihlásit se
         </button>
       <?php endif; ?>
@@ -258,110 +260,17 @@ $announcementLink = '';
   </div>
 </div>
 
-<!-- ===== Login Modal ===== -->
-<div id="loginModal" class="fixed inset-0 z-[100] hidden" aria-modal="true" role="dialog" aria-labelledby="loginModalTitle">
-  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeLoginModal()" aria-hidden="true"></div>
-  <div class="absolute inset-0 flex items-center justify-center p-4">
-    <div class="relative bg-surface-container border border-outline-variant rounded-2xl p-8 w-full max-w-sm shadow-2xl" onclick="event.stopPropagation()">
-      <button type="button" onclick="closeLoginModal()" class="absolute top-4 right-4 p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container-high transition-colors" aria-label="Zavřít">
-        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
-      </button>
-
-      <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center mx-auto mb-3">
-          <span class="material-symbols-outlined text-[22px] text-on-primary-fixed icon-filled" aria-hidden="true">login</span>
-        </div>
-        <h2 id="loginModalTitle" class="font-h1 text-h2 text-on-surface">Přihlášení</h2>
-        <p class="font-caption text-caption text-on-surface-variant mt-1">Přihlaste se svým VeVit účtem</p>
-      </div>
-
-      <div id="loginError" class="hidden bg-error/10 border border-error/30 text-error text-sm px-4 py-3 rounded-lg mb-4" role="alert"></div>
-
-      <form id="loginForm" class="flex flex-col gap-4" onsubmit="return submitLogin(event)" novalidate>
-        <div>
-          <label class="form-label" for="loginEmail">E-mail <span class="required" aria-hidden="true">*</span></label>
-          <input type="email" id="loginEmail" name="email" placeholder="vas@email.cz" required autocomplete="email"
-            class="form-input">
-        </div>
-        <div>
-          <label class="form-label" for="loginPassword">Heslo <span class="required" aria-hidden="true">*</span></label>
-          <input type="password" id="loginPassword" name="password" placeholder="••••••••" required autocomplete="current-password"
-            class="form-input">
-        </div>
-        <button type="submit" id="loginSubmitBtn" class="btn btn-primary w-full">
-          Přihlásit se
-        </button>
-      </form>
-
-      <div class="mt-6 pt-5 border-t border-outline-variant text-center">
-        <p class="font-caption text-caption text-on-surface-variant">
-          Nemáte účet? <a href="https://vevit.cz/register" target="_blank" rel="noopener" class="text-primary hover:underline">Registrujte se na VeVit</a>
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-/* ---- Login modal ---- */
-function openLoginModal() {
-  const m = document.getElementById('loginModal');
-  m.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => {
-    const el = m.querySelector('#loginEmail');
-    if (el) el.focus();
-  }, 50);
-}
-function closeLoginModal() {
-  const m = document.getElementById('loginModal');
-  m.classList.add('hidden');
-  document.body.style.overflow = '';
-}
+/* VeVit Account configuration — read by vevit-account.js.
+   [B1] me_url and [B2] login_url must be confirmed with the VeVit Account team. */
+window.VEVIT_ACCOUNT_CONFIG = {
+  meUrl:     '<?= addslashes($storeConfig['vevit_account']['me_url'] ?? 'https://account.vevit.cz/api/me.php') ?>',
+  loginUrl:  '<?= addslashes($storeConfig['vevit_account']['login_url'] ?? 'https://account.vevit.cz/login') ?>',
+  appOrigin: '<?= addslashes(rtrim($storeConfig['app_url'] ?? '', '/')) ?>',
+};
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeLoginModal();
-    closeDrawer();
-  }
+  if (e.key === 'Escape') closeDrawer();
 });
-
-async function submitLogin(e) {
-  e.preventDefault();
-  const form = e.target;
-  const btn = document.getElementById('loginSubmitBtn');
-  const errEl = document.getElementById('loginError');
-  const originalHtml = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="vevit-spinner"></span> Přihlašuji…';
-  errEl.classList.add('hidden');
-  try {
-    const res = await fetch('<?= $vvBase ?>api/login.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: form.email.value.trim(),
-        password: form.password.value
-      })
-    });
-    const data = await res.json();
-    if (res.ok && data.success) {
-      window.location.reload();
-    } else {
-      errEl.textContent = data.error || 'Chyba při přihlášení.';
-      errEl.classList.remove('hidden');
-      btn.disabled = false;
-      btn.innerHTML = originalHtml;
-      form.password.value = '';
-    }
-  } catch {
-    errEl.textContent = 'Chyba při komunikaci se serverem.';
-    errEl.classList.remove('hidden');
-    btn.disabled = false;
-    btn.innerHTML = originalHtml;
-  }
-  return false;
-}
-if (new URLSearchParams(window.location.search).get('login') === '1') openLoginModal();
 
 /* ---- Mobile Drawer ---- */
 const drawer = document.getElementById('mobileDrawer');
@@ -419,6 +328,69 @@ window.addEventListener('resize', function() {
   if (window.innerWidth >= 768 && drawer && drawer.classList.contains('open')) closeDrawer();
 });
 </script>
+
+<script src="<?= $vvBase ?>assets/js/vevit-account.js"></script>
+<?php if (!$currentUser): ?>
+<script>
+// Hydrate #navAuth via VeVit Account (runs only when no legacy local session).
+// On auth: replace login button with user chip. On failure: leave login button.
+(function () {
+  if (!window.VevitAccount) return;
+  var navAuth = document.getElementById('navAuth');
+  if (!navAuth) return;
+
+  VevitAccount.checkSession().then(function (result) {
+    if (result.state !== 'authenticated' || !result.user) return;
+    var u = result.user;
+
+    // Build avatar element
+    var avatarEl;
+    if (u.avatarUrl) {
+      avatarEl = document.createElement('img');
+      avatarEl.width = 32;
+      avatarEl.height = 32;
+      avatarEl.className = 'w-8 h-8 rounded-full object-cover border border-outline-variant';
+      avatarEl.alt = '';
+      avatarEl.src = u.avatarUrl; // validated as https:// in _safeAvatarUrl
+    } else {
+      avatarEl = document.createElement('span');
+      avatarEl.className = 'w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-on-surface-variant';
+      var icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined text-[18px]';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = 'person';
+      avatarEl.appendChild(icon);
+    }
+
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'font-body-md text-sm text-on-surface max-w-[120px] truncate';
+    nameSpan.textContent = u.displayName || '';
+
+    var logoutA = document.createElement('a');
+    logoutA.href = '<?= addslashes($vvBase) ?>logout.php';
+    logoutA.setAttribute('aria-label', 'Odhlásit se');
+    logoutA.title = 'Odhlásit se';
+    logoutA.className = 'p-1.5 rounded-md text-on-surface-variant hover:text-error transition-colors';
+    var logoutIcon = document.createElement('span');
+    logoutIcon.className = 'material-symbols-outlined text-[18px]';
+    logoutIcon.setAttribute('aria-hidden', 'true');
+    logoutIcon.textContent = 'logout';
+    logoutA.appendChild(logoutIcon);
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'flex items-center gap-2';
+    wrapper.appendChild(avatarEl);
+    wrapper.appendChild(nameSpan);
+    wrapper.appendChild(logoutA);
+
+    navAuth.innerHTML = '';
+    navAuth.appendChild(wrapper);
+  }).catch(function () {
+    // Leave login button in place on any error.
+  });
+}());
+</script>
+<?php endif; ?>
 
 <!-- Main content landmark starts here (id used by skip link) -->
 <div id="main-content">

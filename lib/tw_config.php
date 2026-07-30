@@ -6,7 +6,7 @@ $vvBase = defined('VEVIT_BASE') ? VEVIT_BASE : '';
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= $vvBase ?>assets/css/style.css">
 <link rel="icon" href="<?= $vvBase ?>images/icon.ico" type="image/x-icon">
@@ -83,15 +83,15 @@ tailwind.config = {
         gutter: "24px"
       },
       fontFamily: {
-        "display":   ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        "h1":        ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        "h2":        ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        "body-lg":   ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        "body-md":   ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        "caption":   ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        "mono-label":['"Space Grotesk"', 'ui-monospace', 'monospace'],
-        "sans":      ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        "mono":      ['"Space Grotesk"', 'ui-monospace', 'monospace'],
+        "display":   ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        "h1":        ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        "h2":        ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        "body-lg":   ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        "body-md":   ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        "caption":   ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        "mono-label":['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        "sans":      ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        "mono":      ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         "display":    ["48px", { lineHeight: "1.1",  letterSpacing: "-0.02em", fontWeight: "800" }],

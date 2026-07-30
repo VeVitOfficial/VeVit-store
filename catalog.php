@@ -180,10 +180,10 @@ if ($search) {
           <h3 class="font-mono-label text-[11px] text-on-surface-variant uppercase tracking-widest mb-3">Typ produktu</h3>
           <nav class="flex flex-col gap-0.5" aria-label="Filtr typu">
             <?php
-            $typeOptions = [null => 'Všechny', 'physical' => 'Fyzické', 'digital' => 'Digitální'];
-            $typeIcons   = [null => 'all_inclusive', 'physical' => 'local_shipping', 'digital' => 'download'];
+            $typeOptions = ['' => 'Všechny', 'physical' => 'Fyzické', 'digital' => 'Digitální'];
+            $typeIcons   = ['' => 'all_inclusive', 'physical' => 'local_shipping', 'digital' => 'download'];
             foreach ($typeOptions as $val => $label):
-              $active = $typeFilter === (string)$val || ($val === null && !$typeFilter);
+              $active = $typeFilter === (string)$val || ($val === '' && !$typeFilter);
             ?>
             <a href="<?= h(vv_url(['type' => $val, 'page' => null])) ?>"
                class="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors <?= $active ? 'text-primary bg-primary/8 font-semibold' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' ?>"
