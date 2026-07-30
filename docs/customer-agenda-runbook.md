@@ -59,8 +59,9 @@ existující hashovaný grant v serverové session. Public ID nikdy není autori
 `APP_STORAGE_PATH` je absolutní existující adresář mimo document root, není
 symlink, je zapisovatelný a má režim bez group/world práv (`0700`). Aplikace
 detekuje MIME přes `finfo`, přijímá jen nakonfigurovaný allowlist, generuje
-48byte hex storage jméno, odmítá executable/dangerous dvojité přípony, zapisuje
-atomicky a soubory nastavuje na `0600`.
+48znakové hex storage jméno se 192 bity entropie, odmítá
+executable/dangerous dvojité přípony, zapisuje atomicky a soubory nastavuje na
+`0600`.
 Download je POST + CSRF + parent autorizace a posílá `nosniff` a bezpečný
 `Content-Disposition`. Automatický antivirus a retenční cleanup jsou navazující
 provozní tasky; raw soubory, cookies, granty a tokeny se neauditují.
