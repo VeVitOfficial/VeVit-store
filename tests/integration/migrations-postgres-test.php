@@ -31,6 +31,7 @@ $migrationDirectory = __DIR__ . '/../../migrations/';
 $upMigrations = [
     '202607290001_checkout_snapshot_up.sql',
     '202607290002_order_access_and_download_grants_up.sql',
+    '2026072900025_order_status_enum_up.sql',
     '202607290003_payments_and_inventory_up.sql',
 ];
 foreach ($upMigrations as $migration) {
